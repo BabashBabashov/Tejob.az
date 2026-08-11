@@ -25,9 +25,9 @@ export default function Header({ onMenuClick }: HeaderProps) {
             <Image
               src="/logo.png"
               alt="tejob.az logo"
-              width={140}
-              height={40}
-              className="h-9 w-auto object-contain"
+              width={210}
+              height={60}
+              className="h-14 w-auto object-contain"
               priority
             />
           </Link>
