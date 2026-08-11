@@ -1,4 +1,8 @@
 {
+  "/elaqe/page": "app/elaqe/page.js",
   "/kateqoriya/[slug]/page": "app/kateqoriya/[slug]/page.js",
-  "/page": "app/page.js"
+  "/niye-biz/page": "app/niye-biz/page.js",
+  "/page": "app/page.js",
+  "/rayonlar/page": "app/rayonlar/page.js",
+  "/sirketler/page": "app/sirketler/page.js"
 }

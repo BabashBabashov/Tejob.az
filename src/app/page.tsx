@@ -63,7 +63,7 @@ export default function Home() {
               onChange={(e) => setRegionSlug(e.target.value)}
               className="w-full appearance-none rounded-lg border border-slate-200 bg-slate-50 py-2.5 pl-9 pr-8 text-sm text-slate-900 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
             >
-              <option value="">Rayonlar</option>
+              <option value="">Region</option>
               {regions.map((region) => (
                 <option key={region.id} value={region.slug}>
                   {region.name}

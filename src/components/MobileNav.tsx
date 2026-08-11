@@ -2,16 +2,49 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { X } from "lucide-react";
-import Sidebar from "./Sidebar";
+import { X, Briefcase, Building2, MapPin, Info, Phone, Layers, Star, Heart, GraduationCap, Rss, Shield } from "lucide-react";
 
 interface MobileNavProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
+const mainNav = [
+  { href: "/", label: "Vakansiyalar", icon: Briefcase },
+  { href: "/sirketler", label: "Şirkətlər", icon: Building2 },
+  { href: "/rayonlar", label: "Region", icon: MapPin },
+  { href: "/niye-biz", label: "Niyə Biz", icon: Info },
+  { href: "/elaqe", label: "Əlaqə", icon: Phone },
+];
+
+const categoryNav = [
+  { href: "/kateqoriya/vezifeler", label: "Vəzifələr", icon: Layers },
+  { href: "/kateqoriya/sektorlar", label: "Sektorlar", icon: Star },
+  { href: "/kateqoriya/qadin-isleri", label: "Qadın işləri", icon: Heart },
+  { href: "/kateqoriya/tecrube-proqramlari", label: "Təcrübə Proqramları", icon: GraduationCap },
+  { href: "/kateqoriya/secilmis-elanlar", label: "Seçilmiş elanlar", icon: Star },
+];
+
+const bottomNav = [
+  { href: "/abune", label: "İş elanına abunə", icon: Rss },
+  { href: "/sertler", label: "Şərtlər", icon: Shield },
+  { href: "/is-elani-yerlesdir", label: "Elan yerləşdir", icon: null },
+];
+
 export default function MobileNav({ isOpen, onClose }: MobileNavProps) {
   const pathname = usePathname();
+
+  const linkClass = (href: string, isButton = false) => {
+    const active = pathname === href || pathname.startsWith(href + "/");
+    if (isButton) {
+      return "flex items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-emerald-700";
+    }
+    return `flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium transition-colors ${
+      active
+        ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400"
+        : "text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+    }`;
+  };
 
   return (
     <>
@@ -38,8 +71,44 @@ export default function MobileNav({ isOpen, onClose }: MobileNavProps) {
             <X size={24} />
           </button>
         </div>
-        <div className="px-2 py-4">
-          <Sidebar />
+        <div className="flex h-[calc(100vh-4rem)] flex-col gap-4 overflow-y-auto px-3 py-4">
+          <nav className="flex flex-col gap-1">
+            {mainNav.map((item) => (
+              <Link key={item.href} href={item.href} onClick={onClose} className={linkClass(item.href)}>
+                <item.icon size={18} />
+                {item.label}
+              </Link>
+            ))}
+          </nav>
+
+          <div className="border-t border-slate-200 pt-3 dark:border-slate-800">
+            <p className="mb-2 px-3 text-xs font-medium text-slate-400">Kateqoriyalar</p>
+            <nav className="flex flex-col gap-1">
+              {categoryNav.map((item) => (
+                <Link key={item.href} href={item.href} onClick={onClose} className={linkClass(item.href)}>
+                  <item.icon size={18} />
+                  {item.label}
+                </Link>
+              ))}
+            </nav>
+          </div>
+
+          <div className="border-t border-slate-200 pt-3 dark:border-slate-800">
+            <nav className="flex flex-col gap-1">
+              {bottomNav.map((item) =>
+                item.icon ? (
+                  <Link key={item.href} href={item.href} onClick={onClose} className={linkClass(item.href)}>
+                    <item.icon size={18} />
+                    {item.label}
+                  </Link>
+                ) : (
+                  <Link key={item.href} href={item.href} onClick={onClose} className={linkClass(item.href, true)}>
+                    {item.label}
+                  </Link>
+                )
+              )}
+            </nav>
+          </div>
         </div>
       </div>
     </>
