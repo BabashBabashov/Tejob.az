@@ -19,6 +19,9 @@ export const metadata: Metadata = {
   description:
     "tejob.az - Azərbaycanın iş elanları platforması. Şirkətlər və fərdi sahibkarlar üçün vakansiya elanları.",
   keywords: "iş elanları, vakansiyalar, Bakıda iş, Azərbaycan iş elanları, karyera",
+  icons: {
+    icon: "/logo.png",
+  },
 };
 
 export default function RootLayout({
