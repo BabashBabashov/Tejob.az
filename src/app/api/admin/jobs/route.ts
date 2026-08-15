@@ -100,8 +100,31 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
     if (error instanceof z.ZodError) {
+      const messages = error.issues.map((issue) => {
+        const path = issue.path.join(".");
+        switch (path) {
+          case "title":
+            return "Vəzifə adı ən azı 3 simvol olmalıdır";
+          case "companyId":
+            return "Şirkət seçilməlidir";
+          case "regionId":
+            return "Region seçilməlidir";
+          case "categoryIds":
+            return "Ən azı bir kateqoriya seçilməlidir";
+          case "description":
+            return "İş haqqında məlumat ən azı 10 simvol olmalıdır";
+          case "requirements":
+            return "Ən azı bir tələb daxil edilməlidir";
+          case "contactEmail":
+            return "Düzgün e-poçt ünvanı daxil edin";
+          case "views":
+            return "Baxış sayı düzgün formatda deyil";
+          default:
+            return issue.message;
+        }
+      });
       return NextResponse.json(
-        { error: "Validasiya xətası", details: error.issues },
+        { error: "Validasiya xətası", messages },
         { status: 400 }
       );
     }

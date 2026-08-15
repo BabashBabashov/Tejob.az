@@ -55,7 +55,7 @@ export default function JobForm({
   });
 
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState<string | string[]>("");
   const [showViews, setShowViews] = useState(
     isEditing ? (job?.views ?? 0) > 0 : false
   );
@@ -102,13 +102,41 @@ export default function JobForm({
       (r) => r.trim() !== ""
     );
 
+    if (formData.title.trim().length < 3) {
+      setError("Vəzifə adı ən azı 3 simvol olmalıdır");
+      return;
+    }
+
+    if (!formData.companyId) {
+      setError("Şirkət seçilməlidir");
+      return;
+    }
+
+    if (!formData.regionId) {
+      setError("Region seçilməlidir");
+      return;
+    }
+
     if (formData.categoryIds.length === 0) {
       setError("Ən azı bir kateqoriya seçilməlidir");
       return;
     }
 
+    if (formData.description.trim().length < 10) {
+      setError("İş haqqında məlumat ən azı 10 simvol olmalıdır");
+      return;
+    }
+
     if (trimmedRequirements.length === 0) {
       setError("Ən azı bir tələb daxil edilməlidir");
+      return;
+    }
+
+    if (
+      formData.contactEmail.trim() &&
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.contactEmail.trim())
+    ) {
+      setError("Düzgün e-poçt ünvanı daxil edin");
       return;
     }
 
@@ -133,7 +161,7 @@ export default function JobForm({
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error || "Xəta baş verdi");
+        setError(data.messages || data.error || "Xəta baş verdi");
         return;
       }
 
@@ -153,7 +181,15 @@ export default function JobForm({
     >
       {error && (
         <div className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700 dark:bg-red-900/20 dark:text-red-400">
-          {error}
+          {Array.isArray(error) ? (
+            <ul className="list-disc space-y-1 pl-4">
+              {error.map((msg, index) => (
+                <li key={index}>{msg}</li>
+              ))}
+            </ul>
+          ) : (
+            error
+          )}
         </div>
       )}
 
