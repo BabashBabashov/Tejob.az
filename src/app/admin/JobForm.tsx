@@ -97,11 +97,27 @@ export default function JobForm({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+
+    const trimmedRequirements = formData.requirements.filter(
+      (r) => r.trim() !== ""
+    );
+
+    if (formData.categoryIds.length === 0) {
+      setError("Ən azı bir kateqoriya seçilməlidir");
+      return;
+    }
+
+    if (trimmedRequirements.length === 0) {
+      setError("Ən azı bir tələb daxil edilməlidir");
+      return;
+    }
+
     setLoading(true);
 
     const payload = {
       ...formData,
-      requirements: formData.requirements.filter((r) => r.trim() !== ""),
+      requirements: trimmedRequirements,
+      views: showViews ? formData.views : 0,
     };
 
     try {
