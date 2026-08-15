@@ -2,29 +2,20 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { Building2, Briefcase, ArrowLeft, Mail, Phone } from "lucide-react";
-import { companies, jobs } from "@/lib/data";
-import { getCompanyBySlug } from "@/lib/utils";
+import { getCompanyBySlug } from "@/lib/api";
 import JobCard from "@/components/JobCard";
 
 interface CompanyPageProps {
   params: Promise<{ slug: string }>;
 }
 
-export async function generateStaticParams() {
-  return companies.map((company) => ({
-    slug: company.slug,
-  }));
-}
-
 export default async function CompanyDetailPage({ params }: CompanyPageProps) {
   const { slug } = await params;
-  const company = getCompanyBySlug(slug);
+  const company = await getCompanyBySlug(slug);
 
   if (!company) {
     notFound();
   }
-
-  const companyJobs = jobs.filter((j) => j.companyId === company.id);
 
   return (
     <div className="space-y-6">
@@ -89,11 +80,11 @@ export default async function CompanyDetailPage({ params }: CompanyPageProps) {
           </h2>
           <span className="inline-flex items-center gap-1 text-sm text-slate-500 dark:text-slate-400">
             <Briefcase size={14} />
-            {companyJobs.length} elan
+            {company.jobs.length} elan
           </span>
         </div>
 
-        {companyJobs.length === 0 ? (
+        {company.jobs.length === 0 ? (
           <div className="rounded-xl border border-dashed border-slate-300 bg-white py-12 text-center dark:border-slate-700 dark:bg-slate-900">
             <p className="text-slate-500 dark:text-slate-400">
               Bu şirkətə aid aktiv elan yoxdur.
@@ -101,8 +92,8 @@ export default async function CompanyDetailPage({ params }: CompanyPageProps) {
           </div>
         ) : (
           <div className="grid gap-3">
-            {companyJobs.map((job) => (
-              <JobCard key={job.id} job={job} />
+            {company.jobs.map((job: any) => (
+              <JobCard key={job.id} job={job as any} />
             ))}
           </div>
         )}

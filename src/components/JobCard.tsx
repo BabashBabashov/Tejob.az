@@ -2,15 +2,15 @@ import Link from "next/link";
 import Image from "next/image";
 import { Eye, MapPin, Calendar, Crown } from "lucide-react";
 import { Job } from "@/lib/types";
-import { getCompanyById, getRegionById, formatDate } from "@/lib/utils";
+import { formatDate } from "@/lib/utils";
 
 interface JobCardProps {
   job: Job;
 }
 
 export default function JobCard({ job }: JobCardProps) {
-  const company = getCompanyById(job.companyId);
-  const region = getRegionById(job.regionId);
+  const company = job.company;
+  const region = job.region;
 
   return (
     <Link

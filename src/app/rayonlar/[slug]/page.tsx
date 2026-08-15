@@ -1,29 +1,20 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { MapPin, Briefcase, ArrowLeft } from "lucide-react";
-import { regions, jobs } from "@/lib/data";
-import { getRegionBySlug } from "@/lib/utils";
+import { getRegionBySlug } from "@/lib/api";
 import JobCard from "@/components/JobCard";
 
 interface RegionPageProps {
   params: Promise<{ slug: string }>;
 }
 
-export async function generateStaticParams() {
-  return regions.map((region) => ({
-    slug: region.slug,
-  }));
-}
-
 export default async function RegionDetailPage({ params }: RegionPageProps) {
   const { slug } = await params;
-  const region = getRegionBySlug(slug);
+  const region = await getRegionBySlug(slug);
 
   if (!region) {
     notFound();
   }
-
-  const regionJobs = jobs.filter((j) => j.regionId === region.id);
 
   return (
     <div className="space-y-6">
@@ -45,13 +36,13 @@ export default async function RegionDetailPage({ params }: RegionPageProps) {
               {region.name}
             </h1>
             <p className="text-sm text-slate-500 dark:text-slate-400">
-              {regionJobs.length} {regionJobs.length === 1 ? "elan" : "elan"} tapıldı
+              {region.jobs.length} {region.jobs.length === 1 ? "elan" : "elan"} tapıldı
             </p>
           </div>
         </div>
       </div>
 
-      {regionJobs.length === 0 ? (
+      {region.jobs.length === 0 ? (
         <div className="rounded-xl border border-dashed border-slate-300 bg-white py-12 text-center dark:border-slate-700 dark:bg-slate-900">
           <p className="text-slate-500 dark:text-slate-400">
             Bu rayonda aktiv elan yoxdur.
@@ -59,8 +50,8 @@ export default async function RegionDetailPage({ params }: RegionPageProps) {
         </div>
       ) : (
         <div className="grid gap-3">
-          {regionJobs.map((job) => (
-            <JobCard key={job.id} job={job} />
+          {region.jobs.map((job: any) => (
+            <JobCard key={job.id} job={job as any} />
           ))}
         </div>
       )}

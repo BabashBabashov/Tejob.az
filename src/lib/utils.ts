@@ -1,4 +1,4 @@
-import { Company, Job, Region, Category } from "./types";
+import { Company, SeedJob, Region, Category } from "./types";
 import { companies, jobs, regions, categories } from "./data";
 
 export function getCompanyById(id: string): Company | undefined {
@@ -21,19 +21,19 @@ export function getCategoryBySlug(slug: string): Category | undefined {
   return categories.find((c) => c.slug === slug);
 }
 
-export function getJobsByCompany(companyId: string): Job[] {
+export function getJobsByCompany(companyId: string): SeedJob[] {
   return jobs.filter((j) => j.companyId === companyId);
 }
 
-export function getJobsByRegion(regionId: string): Job[] {
+export function getJobsByRegion(regionId: string): SeedJob[] {
   return jobs.filter((j) => j.regionId === regionId);
 }
 
-export function getJobsByCategory(categoryId: string): Job[] {
+export function getJobsByCategory(categoryId: string): SeedJob[] {
   return jobs.filter((j) => j.categoryIds.includes(categoryId));
 }
 
-export function getJobBySlug(slug: string): Job | undefined {
+export function getJobBySlug(slug: string): SeedJob | undefined {
   return jobs.find((j) => j.slug === slug);
 }
 
@@ -46,13 +46,16 @@ export function getRegionJobCount(regionId: string): number {
 }
 
 export function formatDate(dateString: string): string {
-  const [year, month, day] = dateString.split("-");
+  const normalized = dateString.includes("T")
+    ? dateString.split("T")[0]
+    : dateString;
+  const [year, month, day] = normalized.split("-");
   return `${day}.${month}.${year}`;
 }
 
-export function searchJobs(query: string): Job[] {
+export function searchJobs(query: string): SeedJob[] {
   const lower = query.toLowerCase();
-  return jobs.filter((job: Job) => {
+  return jobs.filter((job: SeedJob) => {
     const company = getCompanyById(job.companyId);
     return (
       job.title.toLowerCase().includes(lower) ||

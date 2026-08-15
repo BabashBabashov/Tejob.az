@@ -23,7 +23,7 @@ export interface Category {
   icon?: string;
 }
 
-export interface Job {
+export interface SeedJob {
   id: string;
   slug: string;
   title: string;
@@ -40,6 +40,25 @@ export interface Job {
   isPremium: boolean;
   views: number;
   createdAt: string;
+}
+
+export interface Job {
+  id: string;
+  slug: string;
+  title: string;
+  description: string;
+  requirements: string[];
+  salary?: string | null;
+  workType?: string | null;
+  deadline?: string | null;
+  contactPhone?: string | null;
+  contactEmail?: string | null;
+  isPremium: boolean;
+  views: number;
+  createdAt: string;
+  company: Company;
+  region: Region;
+  categories?: Category[];
 }
 
 export interface SocialLink {

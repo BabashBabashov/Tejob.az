@@ -1,4 +1,4 @@
-import { Company, Region, Category, Job, SocialLink, PageContent } from "./types";
+import { Company, Region, Category, SeedJob, SocialLink, PageContent } from "./types";
 
 export const companies: Company[] = [
   {
@@ -75,7 +75,7 @@ export const categories: Category[] = [
   { id: "cat8", slug: "secilmis-elanlar", name: "Seçilmiş elanlar", type: "position" },
 ];
 
-export const jobs: Job[] = [
+export const jobs: SeedJob[] = [
   {
     id: "j1",
     slug: "maltozlayan-servis-movcuddur",

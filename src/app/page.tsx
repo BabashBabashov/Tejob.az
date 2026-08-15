@@ -1,28 +1,82 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Search, MapPin, Building2, SlidersHorizontal } from "lucide-react";
-import { jobs, companies, regions } from "@/lib/data";
 import JobCard from "@/components/JobCard";
 import SocialBanner from "@/components/SocialBanner";
 
+interface ApiCompany {
+  id: string;
+  slug: string;
+  name: string;
+  logo: string;
+}
+
+interface ApiRegion {
+  id: string;
+  slug: string;
+  name: string;
+}
+
+interface Job {
+  id: string;
+  slug: string;
+  title: string;
+  description: string;
+  requirements: string[];
+  salary?: string;
+  workType?: string;
+  deadline?: string;
+  contactPhone?: string;
+  contactEmail?: string;
+  isPremium: boolean;
+  views: number;
+  createdAt: string;
+  company: ApiCompany;
+  region: ApiRegion;
+}
+
 export default function Home() {
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [companies, setCompanies] = useState<ApiCompany[]>([]);
+  const [regions, setRegions] = useState<ApiRegion[]>([]);
+  const [loading, setLoading] = useState(true);
+
   const [query, setQuery] = useState("");
   const [regionSlug, setRegionSlug] = useState("");
   const [companySlug, setCompanySlug] = useState("");
 
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const [jobsRes, companiesRes, regionsRes] = await Promise.all([
+          fetch("/api/jobs/"),
+          fetch("/api/companies/"),
+          fetch("/api/regions/"),
+        ]);
+
+        if (jobsRes.ok) setJobs(await jobsRes.json());
+        if (companiesRes.ok) setCompanies(await companiesRes.json());
+        if (regionsRes.ok) setRegions(await regionsRes.json());
+      } catch (error) {
+        console.error("Data loading error:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadData();
+  }, []);
+
   const filteredJobs = useMemo(() => {
     return jobs
       .filter((job) => {
-        const company = companies.find((c) => c.id === job.companyId);
-        const region = regions.find((r) => r.id === job.regionId);
         const matchesQuery =
           query.trim() === "" ||
           job.title.toLowerCase().includes(query.toLowerCase()) ||
-          company?.name.toLowerCase().includes(query.toLowerCase()) ||
-          false;
-        const matchesRegion = regionSlug === "" || region?.slug === regionSlug;
-        const matchesCompany = companySlug === "" || company?.slug === companySlug;
+          job.company.name.toLowerCase().includes(query.toLowerCase());
+        const matchesRegion = regionSlug === "" || job.region.slug === regionSlug;
+        const matchesCompany = companySlug === "" || job.company.slug === companySlug;
         return matchesQuery && matchesRegion && matchesCompany;
       })
       .sort((a, b) => {
@@ -30,7 +84,15 @@ export default function Home() {
         if (!a.isPremium && b.isPremium) return 1;
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       });
-  }, [query, regionSlug, companySlug]);
+  }, [jobs, query, regionSlug, companySlug]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-200 border-t-emerald-600" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -116,7 +178,7 @@ export default function Home() {
         ) : (
           <div className="grid gap-3">
             {filteredJobs.map((job) => (
-              <JobCard key={job.id} job={job} />
+              <JobCard key={job.id} job={job as any} />
             ))}
           </div>
         )}

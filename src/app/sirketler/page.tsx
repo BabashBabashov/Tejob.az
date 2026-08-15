@@ -1,22 +1,49 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Search, Building2, Briefcase } from "lucide-react";
-import { companies } from "@/lib/data";
-import { getCompanyJobCount } from "@/lib/utils";
+
+interface Company {
+  id: string;
+  slug: string;
+  name: string;
+  logo: string;
+  sector: string;
+  jobCount: number;
+}
 
 export default function CompaniesPage() {
+  const [companies, setCompanies] = useState<Company[]>([]);
   const [query, setQuery] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("/api/companies/")
+      .then((res) => res.json())
+      .then((data) => {
+        setCompanies(data);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
 
   const filteredCompanies = useMemo(() => {
     return companies
       .filter((company) =>
         company.name.toLowerCase().includes(query.toLowerCase())
       )
-      .sort((a, b) => getCompanyJobCount(b.id) - getCompanyJobCount(a.id));
-  }, [query]);
+      .sort((a, b) => b.jobCount - a.jobCount);
+  }, [companies, query]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-200 border-t-emerald-600" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -48,45 +75,42 @@ export default function CompaniesPage() {
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {filteredCompanies.map((company) => {
-            const jobCount = getCompanyJobCount(company.id);
-            return (
-              <Link
-                key={company.id}
-                href={`/sirketler/${company.slug}`}
-                className="group flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-4 transition-all hover:border-emerald-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:border-emerald-700"
-              >
-                <div className="flex items-start gap-3">
-                  <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-slate-100 bg-white dark:border-slate-700 dark:bg-slate-800">
-                    <Image
-                      src={company.logo}
-                      alt={company.name}
-                      width={56}
-                      height={56}
-                      className="h-10 w-10 object-contain"
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-slate-900 group-hover:text-emerald-700 dark:text-slate-100 dark:group-hover:text-emerald-400">
-                      {company.name}
-                    </h3>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">
-                      {company.sector}
-                    </p>
-                  </div>
+          {filteredCompanies.map((company) => (
+            <Link
+              key={company.id}
+              href={`/sirketler/${company.slug}`}
+              className="group flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-4 transition-all hover:border-emerald-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:border-emerald-700"
+            >
+              <div className="flex items-start gap-3">
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-slate-100 bg-white dark:border-slate-700 dark:bg-slate-800">
+                  <Image
+                    src={company.logo}
+                    alt={company.name}
+                    width={56}
+                    height={56}
+                    className="h-10 w-10 object-contain"
+                  />
                 </div>
-                <div className="mt-auto flex items-center justify-between border-t border-slate-100 pt-3 dark:border-slate-800">
-                  <span className="inline-flex items-center gap-1 text-xs font-medium text-slate-600 dark:text-slate-400">
-                    <Briefcase size={13} />
-                    {jobCount} {jobCount === 1 ? "elan" : "elan"}
-                  </span>
-                  <span className="text-xs font-medium text-emerald-700 dark:text-emerald-400">
-                    Ətraflı →
-                  </span>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-slate-900 group-hover:text-emerald-700 dark:text-slate-100 dark:group-hover:text-emerald-400">
+                    {company.name}
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    {company.sector}
+                  </p>
                 </div>
-              </Link>
-            );
-          })}
+              </div>
+              <div className="mt-auto flex items-center justify-between border-t border-slate-100 pt-3 dark:border-slate-800">
+                <span className="inline-flex items-center gap-1 text-xs font-medium text-slate-600 dark:text-slate-400">
+                  <Briefcase size={13} />
+                  {company.jobCount} {company.jobCount === 1 ? "elan" : "elan"}
+                </span>
+                <span className="text-xs font-medium text-emerald-700 dark:text-emerald-400">
+                  Ətraflı →
+                </span>
+              </div>
+            </Link>
+          ))}
         </div>
       )}
     </div>

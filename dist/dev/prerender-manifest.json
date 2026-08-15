@@ -1,1 +1,11 @@
-{"version":4,"routes":{"/kateqoriya/vakansiyalar":{},"/kateqoriya/vezifeler":{},"/kateqoriya/sektorlar":{},"/kateqoriya/sirketler":{},"/kateqoriya/rayonlar":{},"/kateqoriya/qadin-isleri":{},"/kateqoriya/tecrube-proqramlari":{},"/kateqoriya/secilmis-elanlar":{}},"dynamicRoutes":{"/kateqoriya/[slug]":{"dataRoute":null,"dataRouteRegex":null,"fallback":null,"fallbackRevalidate":false,"fallbackSourceRoute":"/kateqoriya/[slug]","routeRegex":"^\\/kateqoriya\\/([^/]+?)(?:\\/)?$","allowHeader":[]}},"notFoundRoutes":[],"preview":{"previewModeId":"c1047b9c2f20d10c3422c713950c0e81","previewModeSigningKey":"f9c4d781a54d04e7be2f8f908e64b78b85a2fbb6ab4c7bbe688d06bc9df92cc4","previewModeEncryptionKey":"9a14f3a50d862d13c2496f8049e06a56a714285f6c615da1b20a614c2cf1d4ca"}}
+{
+  "version": 4,
+  "routes": {},
+  "dynamicRoutes": {},
+  "notFoundRoutes": [],
+  "preview": {
+    "previewModeId": "7c48ad940dda08899c61c17d24581741",
+    "previewModeSigningKey": "69d8a3857b2625e8e0edadc3dd9f6df2df7962db9c70193bdda11cce246a93fe",
+    "previewModeEncryptionKey": "37ea1158b9197a18738b413804a592f7c9f75730305bc5b486d450c9ff8d29e1"
+  }
+}

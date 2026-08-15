@@ -13,29 +13,22 @@ import {
   ArrowLeft,
   Building2,
 } from "lucide-react";
-import { jobs } from "@/lib/data";
-import { getCompanyById, getRegionById, formatDate } from "@/lib/utils";
+import { getJobBySlug, formatDate } from "@/lib/api";
 
 interface JobDetailPageProps {
   params: Promise<{ id: string }>;
 }
 
-export async function generateStaticParams() {
-  return jobs.map((job) => ({
-    id: job.slug,
-  }));
-}
-
 export default async function JobDetailPage({ params }: JobDetailPageProps) {
   const { id } = await params;
-  const job = jobs.find((j) => j.slug === id);
+  const job = await getJobBySlug(id);
 
   if (!job) {
     notFound();
   }
 
-  const company = getCompanyById(job.companyId);
-  const region = getRegionById(job.regionId);
+  const company = job.company;
+  const region = job.region;
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
@@ -64,7 +57,7 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
                 {job.title}
               </h1>
               <Link
-                href={`/şirkətlər/${company?.slug}`}
+                href={`/sirketler/${company?.slug}`}
                 className="inline-flex items-center gap-1 text-sm font-medium text-emerald-700 hover:underline dark:text-emerald-400"
               >
                 <Building2 size={14} />
@@ -124,7 +117,7 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
               Tələblər
             </h2>
             <ul className="list-inside list-disc space-y-1 text-slate-700 dark:text-slate-300">
-              {job.requirements.map((req, index) => (
+              {job.requirements.map((req: string, index: number) => (
                 <li key={index}>{req}</li>
               ))}
             </ul>

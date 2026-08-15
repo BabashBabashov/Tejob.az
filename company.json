@@ -1,0 +1,8 @@
+﻿{
+  "name": "Test Company",
+  "sector": "IT",
+  "description": "Test description",
+  "logo": "/logo.png",
+  "email": "test@test.com",
+  "phone": "+994 55 555 55 55"
+}

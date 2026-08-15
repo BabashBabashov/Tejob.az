@@ -1,0 +1,63 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Company {
+  id          String  @id
+  slug        String  @unique
+  name        String
+  logo        String  @default("/logo.png")
+  sector      String
+  description String
+  email       String?
+  phone       String?
+  jobs        Job[]
+}
+
+model Region {
+  id    String @id
+  slug  String @unique
+  name  String
+  jobs  Job[]
+}
+
+model Category {
+  id    String @id
+  slug  String @unique
+  name  String
+  type  String
+  jobs  Job[]
+}
+
+model Job {
+  id           String     @id
+  slug         String     @unique
+  title        String
+  description  String
+  requirements String
+  salary       String?
+  workType     String?
+  deadline     String?
+  contactPhone String?
+  contactEmail String?
+  isPremium    Boolean    @default(false)
+  views        Int        @default(0)
+  createdAt    DateTime   @default(now())
+
+  companyId    String
+  company      Company    @relation(fields: [companyId], references: [id])
+  regionId     String
+  region       Region     @relation(fields: [regionId], references: [id])
+  categories   Category[]
+}
+
+model AdminUser {
+  id       String @id @default(cuid())
+  username String @unique
+  password String
+}
