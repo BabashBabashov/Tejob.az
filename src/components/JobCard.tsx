@@ -57,10 +57,12 @@ export default function JobCard({ job }: JobCardProps) {
             <Calendar size={13} />
             {formatDate(job.createdAt)}
           </span>
-          <span className="flex items-center gap-1">
-            <Eye size={13} />
-            {job.views}
-          </span>
+          {job.views > 0 && (
+            <span className="flex items-center gap-1">
+              <Eye size={13} />
+              {job.views}
+            </span>
+          )}
         </div>
       </div>
     </Link>

@@ -14,6 +14,7 @@ import {
   Building2,
 } from "lucide-react";
 import { getJobBySlug, formatDate } from "@/lib/api";
+import ViewCounter from "./ViewCounter";
 
 interface JobDetailPageProps {
   params: Promise<{ id: string }>;
@@ -32,6 +33,7 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
+      <ViewCounter slug={job.slug} />
       <Link
         href="/"
         className="inline-flex items-center gap-1 text-sm font-medium text-slate-600 hover:text-emerald-700 dark:text-slate-400 dark:hover:text-emerald-400"
@@ -84,10 +86,12 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
             <Calendar size={16} />
             {formatDate(job.createdAt)}
           </span>
-          <span className="flex items-center gap-1.5">
-            <Eye size={16} />
-            {job.views} baxış
-          </span>
+          {job.views > 0 && (
+            <span className="flex items-center gap-1.5">
+              <Eye size={16} />
+              {job.views} baxış
+            </span>
+          )}
           {job.workType && (
             <span className="flex items-center gap-1.5">
               <Briefcase size={16} />
