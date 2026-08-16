@@ -4,7 +4,6 @@ import Image from "next/image";
 import {
   MapPin,
   Calendar,
-  Eye,
   Crown,
   Phone,
   Mail,
@@ -86,12 +85,6 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
             <Calendar size={16} />
             {formatDate(job.createdAt)}
           </span>
-          {job.views > 0 && (
-            <span className="flex items-center gap-1.5">
-              <Eye size={16} />
-              {job.views} baxış
-            </span>
-          )}
           {job.workType && (
             <span className="flex items-center gap-1.5">
               <Briefcase size={16} />

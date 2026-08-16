@@ -26,6 +26,7 @@ interface JobFormData {
   contactPhone: string;
   contactEmail: string;
   isPremium: boolean;
+  showViews: boolean;
   views: number;
 }
 
@@ -51,14 +52,12 @@ export default function JobForm({
     contactPhone: job?.contactPhone || "",
     contactEmail: job?.contactEmail || "",
     isPremium: job?.isPremium || false,
+    showViews: job?.showViews || false,
     views: job?.views || 0,
   });
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | string[]>("");
-  const [showViews, setShowViews] = useState(
-    isEditing ? (job?.views ?? 0) > 0 : false
-  );
 
   const handleCategoryToggle = (categoryId: string) => {
     setFormData((prev) => {
@@ -145,7 +144,6 @@ export default function JobForm({
     const payload = {
       ...formData,
       requirements: trimmedRequirements,
-      views: showViews ? formData.views : 0,
     };
 
     try {
@@ -436,34 +434,19 @@ export default function JobForm({
         <label className="flex items-center gap-2">
           <input
             type="checkbox"
-            checked={showViews}
-            onChange={(e) => setShowViews(e.target.checked)}
+            checked={formData.showViews}
+            onChange={(e) =>
+              setFormData((prev) => ({
+                ...prev,
+                showViews: e.target.checked,
+              }))
+            }
             className="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
           />
           <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-            Baxış sayını göstər
+            Admin paneldə baxış sayını göstər
           </span>
         </label>
-
-        {showViews && (
-          <div className="flex items-center gap-2">
-            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-              Baxış sayı:
-            </label>
-            <input
-              type="number"
-              min={0}
-              value={formData.views}
-              onChange={(e) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  views: parseInt(e.target.value) || 0,
-                }))
-              }
-              className="w-24 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
-            />
-          </div>
-        )}
       </div>
 
       <div className="flex items-center justify-end gap-3 pt-4">

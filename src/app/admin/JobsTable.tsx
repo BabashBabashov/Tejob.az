@@ -11,6 +11,7 @@ interface Job {
   slug: string;
   title: string;
   isPremium: boolean;
+  showViews: boolean;
   views: number;
   createdAt: string;
   company: { name: string };
@@ -95,6 +96,9 @@ export default function JobsTable({ jobs }: JobsTableProps) {
                 <th className="px-4 py-3 font-semibold text-slate-700 dark:text-slate-300">
                   Status
                 </th>
+                <th className="px-4 py-3 font-semibold text-slate-700 dark:text-slate-300">
+                  Baxış
+                </th>
                 <th className="px-4 py-3 text-right font-semibold text-slate-700 dark:text-slate-300">
                   Əməliyyatlar
                 </th>
@@ -132,6 +136,9 @@ export default function JobsTable({ jobs }: JobsTableProps) {
                       </span>
                     )}
                   </td>
+                  <td className="px-4 py-3 text-slate-600 dark:text-slate-400">
+                    {job.showViews ? job.views : "—"}
+                  </td>
                   <td className="px-4 py-3 text-right">
                     <div className="flex items-center justify-end gap-2">
                       <Link
@@ -154,7 +161,7 @@ export default function JobsTable({ jobs }: JobsTableProps) {
               {filtered.length === 0 && (
                 <tr>
                   <td
-                    colSpan={6}
+                    colSpan={7}
                     className="px-4 py-12 text-center text-slate-500 dark:text-slate-400"
                   >
                     Elan tapılmadı.

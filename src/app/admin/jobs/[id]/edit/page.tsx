@@ -43,6 +43,7 @@ export default async function EditJobPage({ params }: EditJobPageProps) {
     deadline: job.deadline ?? "",
     contactPhone: job.contactPhone ?? "",
     contactEmail: job.contactEmail ?? "",
+    showViews: job.showViews,
   };
 
   return (

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Eye, MapPin, Calendar, Crown } from "lucide-react";
+import { MapPin, Calendar, Crown } from "lucide-react";
 import { Job } from "@/lib/types";
 import { formatDate } from "@/lib/utils";
 
@@ -57,12 +57,6 @@ export default function JobCard({ job }: JobCardProps) {
             <Calendar size={13} />
             {formatDate(job.createdAt)}
           </span>
-          {job.views > 0 && (
-            <span className="flex items-center gap-1">
-              <Eye size={13} />
-              {job.views}
-            </span>
-          )}
         </div>
       </div>
     </Link>
