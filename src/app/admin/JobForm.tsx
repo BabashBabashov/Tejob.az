@@ -59,16 +59,54 @@ export default function JobForm({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | string[]>("");
 
-  const handleCategoryToggle = (categoryId: string) => {
+  const handleCategoryToggle = (categoryId: string, type: string) => {
     setFormData((prev) => {
       const exists = prev.categoryIds.includes(categoryId);
-      return {
-        ...prev,
-        categoryIds: exists
-          ? prev.categoryIds.filter((id) => id !== categoryId)
-          : [...prev.categoryIds, categoryId],
-      };
+      let nextCategoryIds = exists
+        ? prev.categoryIds.filter((id) => id !== categoryId)
+        : [...prev.categoryIds, categoryId];
+
+      // For sector and position, keep only one selection per type to avoid confusion
+      if (type === "sector" || type === "position") {
+        const sameTypeIds = categories
+          .filter((c) => c.type === type && c.id !== categoryId)
+          .map((c) => c.id);
+        nextCategoryIds = nextCategoryIds.filter((id) => !sameTypeIds.includes(id));
+      }
+
+      return { ...prev, categoryIds: nextCategoryIds };
     });
+  };
+
+  const renderCategoryButtons = (type: string, label: string) => {
+    const filtered = categories.filter((c) => c.type === type);
+    if (filtered.length === 0) return null;
+    return (
+      <div className="space-y-2">
+        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+          {label}
+        </label>
+        <div className="flex flex-wrap gap-2">
+          {filtered.map((category) => {
+            const selected = formData.categoryIds.includes(category.id);
+            return (
+              <button
+                key={category.id}
+                type="button"
+                onClick={() => handleCategoryToggle(category.id, category.type)}
+                className={`rounded-lg border px-3 py-1.5 text-sm transition-colors ${
+                  selected
+                    ? "border-emerald-500 bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400"
+                    : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
+                }`}
+              >
+                {category.name}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    );
   };
 
   const addRequirement = () => {
@@ -116,8 +154,23 @@ export default function JobForm({
       return;
     }
 
-    if (formData.categoryIds.length === 0) {
-      setError("Ən azı bir kateqoriya seçilməlidir");
+    const sectorCategories = categories.filter((c) => c.type === "sector");
+    const positionCategories = categories.filter((c) => c.type === "position");
+
+    const hasSector = formData.categoryIds.some((id) =>
+      sectorCategories.some((c) => c.id === id)
+    );
+    const hasPosition = formData.categoryIds.some((id) =>
+      positionCategories.some((c) => c.id === id)
+    );
+
+    if (!hasSector) {
+      setError("Ən azı bir sektor seçilməlidir");
+      return;
+    }
+
+    if (!hasPosition) {
+      setError("Ən azı bir vəzifə seçilməlidir");
       return;
     }
 
@@ -248,29 +301,12 @@ export default function JobForm({
         </div>
       </div>
 
-      <div>
-        <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
+      <div className="space-y-4">
+        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
           Kateqoriyalar
         </label>
-        <div className="flex flex-wrap gap-2">
-          {categories.map((category) => {
-            const selected = formData.categoryIds.includes(category.id);
-            return (
-              <button
-                key={category.id}
-                type="button"
-                onClick={() => handleCategoryToggle(category.id)}
-                className={`rounded-lg border px-3 py-1.5 text-sm transition-colors ${
-                  selected
-                    ? "border-emerald-500 bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400"
-                    : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
-                }`}
-              >
-                {category.name}
-              </button>
-            );
-          })}
-        </div>
+        {renderCategoryButtons("sector", "Sektor")}
+        {renderCategoryButtons("position", "Vəzifə")}
       </div>
 
       <div>
