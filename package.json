@@ -1,7 +1,8 @@
 {
 
-  "scripts": {
-  "build": "npx prisma db push && npx prisma generate && next build"
+"scripts": {
+  "build": "prisma generate && next build",
+  "start": "next start"
 }
 
   "name": "website",
