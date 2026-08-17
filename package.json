@@ -1,4 +1,9 @@
 {
+
+  "scripts": {
+  "build": "npx prisma db push && npx prisma generate && next build"
+}
+
   "name": "website",
   "version": "0.1.0",
   "private": true,
