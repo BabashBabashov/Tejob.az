@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Pencil, Trash2, Search, Crown } from "lucide-react";
+import { Pencil, Trash2, Search, Crown, Eye, EyeOff } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 
 interface Job {
@@ -26,6 +26,7 @@ interface JobsTableProps {
 export default function JobsTable({ jobs }: JobsTableProps) {
   const [query, setQuery] = useState("");
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [toggling, setToggling] = useState<string | null>(null);
   const router = useRouter();
 
   const filtered = jobs.filter(
@@ -33,6 +34,24 @@ export default function JobsTable({ jobs }: JobsTableProps) {
       job.title.toLowerCase().includes(query.toLowerCase()) ||
       job.company.name.toLowerCase().includes(query.toLowerCase())
   );
+
+  const handleToggleViews = async (id: string) => {
+    setToggling(id);
+    try {
+      const res = await fetch(`/api/admin/jobs/${id}/toggle-views/`, {
+        method: "PATCH",
+      });
+      if (res.ok) {
+        router.refresh();
+      } else {
+        alert("Baxış sayı dəyişilərkən xəta baş verdi");
+      }
+    } catch {
+      alert("Şəbəkə xətası");
+    } finally {
+      setToggling(null);
+    }
+  };
 
   const handleDelete = async (id: string) => {
     if (!confirm("Bu elanı silmək istədiyinizə əminsiniz?")) return;
@@ -136,8 +155,25 @@ export default function JobsTable({ jobs }: JobsTableProps) {
                       </span>
                     )}
                   </td>
-                  <td className="px-4 py-3 text-slate-600 dark:text-slate-400">
-                    {job.showViews ? job.views : "—"}
+                  <td className="px-4 py-3">
+                    <button
+                      onClick={() => handleToggleViews(job.id)}
+                      disabled={toggling === job.id}
+                      className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs font-medium transition-colors hover:bg-slate-100 disabled:opacity-50 dark:hover:bg-slate-800"
+                      title={job.showViews ? "Baxışı gizlət" : "Baxışı göstər"}
+                    >
+                      {job.showViews ? (
+                        <>
+                          <Eye size={14} className="text-emerald-600" />
+                          <span className="text-slate-700 dark:text-slate-300">{job.views}</span>
+                        </>
+                      ) : (
+                        <>
+                          <EyeOff size={14} className="text-slate-400" />
+                          <span className="text-slate-400">—</span>
+                        </>
+                      )}
+                    </button>
                   </td>
                   <td className="px-4 py-3 text-right">
                     <div className="flex items-center justify-end gap-2">

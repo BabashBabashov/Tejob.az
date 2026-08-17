@@ -55,10 +55,21 @@ model Job {
   regionId     String
   region       Region     @relation(fields: [regionId], references: [id])
   categories   Category[]
+
+  @@index([companyId])
+  @@index([regionId])
+  @@index([isPremium])
+  @@index([createdAt])
 }
 
 model AdminUser {
   id       String @id @default(cuid())
   username String @unique
   password String
+}
+
+model Subscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
 }

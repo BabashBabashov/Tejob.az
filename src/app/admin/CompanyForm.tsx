@@ -2,17 +2,31 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Save, X, Building2 } from "lucide-react";
+import { Save, X } from "lucide-react";
 
-export default function CompanyForm() {
+interface CompanyFormProps {
+  company?: {
+    id: string;
+    name: string;
+    sector: string;
+    description: string;
+    logo: string;
+    email: string | null;
+    phone: string | null;
+  };
+}
+
+export default function CompanyForm({ company }: CompanyFormProps) {
   const router = useRouter();
+  const isEditing = Boolean(company?.id);
+
   const [formData, setFormData] = useState({
-    name: "",
-    sector: "",
-    description: "",
-    logo: "/logo.png",
-    email: "",
-    phone: "",
+    name: company?.name || "",
+    sector: company?.sector || "",
+    description: company?.description || "",
+    logo: company?.logo || "/logo.png",
+    email: company?.email || "",
+    phone: company?.phone || "",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -23,8 +37,13 @@ export default function CompanyForm() {
     setLoading(true);
 
     try {
-      const res = await fetch("/api/admin/companies/", {
-        method: "POST",
+      const url = isEditing
+        ? `/api/admin/companies/${company?.id}/`
+        : "/api/admin/companies/";
+      const method = isEditing ? "PUT" : "POST";
+
+      const res = await fetch(url, {
+        method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
@@ -36,7 +55,7 @@ export default function CompanyForm() {
         return;
       }
 
-      router.push("/admin");
+      router.push("/admin/companies");
       router.refresh();
     } catch {
       setError("Şəbəkə xətası");
@@ -154,7 +173,7 @@ export default function CompanyForm() {
       <div className="flex items-center justify-end gap-3 pt-4">
         <button
           type="button"
-          onClick={() => router.push("/admin")}
+          onClick={() => router.push("/admin/companies")}
           className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
         >
           <X size={16} />
@@ -166,7 +185,7 @@ export default function CompanyForm() {
           className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-70"
         >
           <Save size={16} />
-          {loading ? "Saxlanılır..." : "Yarat"}
+          {loading ? "Saxlanılır..." : isEditing ? "Yenilə" : "Yarat"}
         </button>
       </div>
     </form>

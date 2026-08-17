@@ -1,23 +1,51 @@
 import { prisma } from "./prisma";
 
-export async function getJobs() {
-  const jobs = await prisma.job.findMany({
-    include: {
-      company: true,
-      region: true,
-      categories: true,
-    },
-    orderBy: [{ isPremium: "desc" }, { createdAt: "desc" }],
-  });
+export async function getJobs(page = 1, limit = 20) {
+  const today = new Date().toISOString().split("T")[0];
+  const skip = (page - 1) * limit;
 
-  return jobs.map((job: any) => ({
-    ...job,
-    requirements:
-      typeof job.requirements === "string"
-        ? JSON.parse(job.requirements)
-        : job.requirements,
-    createdAt: job.createdAt.toISOString().split("T")[0],
-  }));
+  const [jobs, total] = await Promise.all([
+    prisma.job.findMany({
+      where: {
+        OR: [
+          { deadline: null },
+          { deadline: "" },
+          { deadline: { gte: today } },
+        ],
+      },
+      include: {
+        company: true,
+        region: true,
+        categories: true,
+      },
+      orderBy: [{ isPremium: "desc" }, { createdAt: "desc" }],
+      skip,
+      take: limit,
+    }),
+    prisma.job.count({
+      where: {
+        OR: [
+          { deadline: null },
+          { deadline: "" },
+          { deadline: { gte: today } },
+        ],
+      },
+    }),
+  ]);
+
+  return {
+    jobs: jobs.map((job: any) => ({
+      ...job,
+      requirements:
+        typeof job.requirements === "string"
+          ? JSON.parse(job.requirements)
+          : job.requirements,
+      createdAt: job.createdAt.toISOString().split("T")[0],
+    })),
+    total,
+    page,
+    totalPages: Math.ceil(total / limit),
+  };
 }
 
 export async function getJobBySlug(slug: string) {

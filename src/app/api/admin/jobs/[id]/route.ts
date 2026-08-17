@@ -18,7 +18,6 @@ const jobUpdateSchema = z.object({
   contactEmail: z.string().email().optional().or(z.literal("")),
   isPremium: z.boolean().default(false),
   showViews: z.boolean().default(false),
-  views: z.number().int().default(0),
 });
 
 function formatJob(job: any) {
@@ -101,7 +100,6 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
         contactEmail: validated.contactEmail || null,
         isPremium: validated.isPremium,
         showViews: validated.showViews,
-        views: validated.views,
         company: { connect: { id: validated.companyId } },
         region: { connect: { id: validated.regionId } },
         categories: {

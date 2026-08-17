@@ -27,7 +27,6 @@ interface JobFormData {
   contactEmail: string;
   isPremium: boolean;
   showViews: boolean;
-  views: number;
 }
 
 export default function JobForm({
@@ -53,7 +52,6 @@ export default function JobForm({
     contactEmail: job?.contactEmail || "",
     isPremium: job?.isPremium || false,
     showViews: job?.showViews || false,
-    views: job?.views || 0,
   });
 
   const [loading, setLoading] = useState(false);

@@ -7,11 +7,34 @@ export default function SubscribePage() {
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email.trim()) {
+    setError("");
+    setLoading(true);
+
+    try {
+      const res = await fetch("/api/subscribe/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim() }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || "Xəta baş verdi");
+        return;
+      }
+
       setSubmitted(true);
       setEmail("");
+    } catch {
+      setError("Şəbəkə xətası");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -48,6 +71,11 @@ export default function SubscribePage() {
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
+            {error && (
+              <div className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700 dark:bg-red-900/20 dark:text-red-400">
+                {error}
+              </div>
+            )}
             <div>
               <label
                 htmlFor="email"
@@ -70,9 +98,10 @@ export default function SubscribePage() {
             </div>
             <button
               type="submit"
-              className="w-full rounded-lg bg-emerald-600 py-2.5 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
+              disabled={loading}
+              className="w-full rounded-lg bg-emerald-600 py-2.5 text-sm font-medium text-white transition-colors hover:bg-emerald-700 disabled:opacity-70"
             >
-              Abunə ol
+              {loading ? "Göndərilir..." : "Abunə ol"}
             </button>
             <p className="text-xs text-slate-500 dark:text-slate-400">
               Abunə olmaqla şərtlərimizi qəbul etmiş olursunuz.

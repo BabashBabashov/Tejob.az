@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { X, Briefcase, Building2, MapPin, Info, Phone, Layers, Star, Heart, GraduationCap, Rss, Shield } from "lucide-react";
+import { X, Briefcase, Building2, MapPin, Info, Phone, Layers, Star, Heart, GraduationCap, Rss, Shield, Share2 } from "lucide-react";
+import { socialLinks } from "@/lib/data";
 
 interface MobileNavProps {
   isOpen: boolean;
@@ -108,6 +109,26 @@ export default function MobileNav({ isOpen, onClose }: MobileNavProps) {
                 )
               )}
             </nav>
+          </div>
+
+          <div className="border-t border-slate-200 pt-3 dark:border-slate-800">
+            <p className="mb-2 flex items-center gap-1.5 px-3 text-xs font-medium text-slate-400">
+              <Share2 size={12} />
+              Sosial şəbəkələr
+            </p>
+            <div className="flex flex-wrap gap-2 px-3">
+              {socialLinks.map((link) => (
+                <a
+                  key={link.name}
+                  href={link.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:bg-emerald-100 hover:text-emerald-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-emerald-900/30 dark:hover:text-emerald-400"
+                >
+                  {link.name}
+                </a>
+              ))}
+            </div>
           </div>
         </div>
       </div>

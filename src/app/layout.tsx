@@ -15,12 +15,27 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "tejob.az - İş elanları",
+  title: {
+    default: "tejob.az - İş elanları",
+    template: "%s | tejob.az",
+  },
   description:
     "tejob.az - Azərbaycanın iş elanları platforması. Şirkətlər və fərdi sahibkarlar üçün vakansiya elanları.",
   keywords: "iş elanları, vakansiyalar, Bakıda iş, Azərbaycan iş elanları, karyera",
   icons: {
     icon: "/logo.png",
+  },
+  openGraph: {
+    type: "website",
+    locale: "az_AZ",
+    siteName: "tejob.az",
+    title: "tejob.az - İş elanları",
+    description:
+      "Azərbaycanın iş elanları platforması. Şirkətlər və fərdi sahibkarlar üçün vakansiya elanları.",
+  },
+  robots: {
+    index: true,
+    follow: true,
   },
 };
 
