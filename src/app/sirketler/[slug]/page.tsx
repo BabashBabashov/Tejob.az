@@ -4,6 +4,7 @@ import Image from "next/image";
 import { Building2, Briefcase, ArrowLeft, Mail, Phone } from "lucide-react";
 import { getCompanyBySlug } from "@/lib/api";
 import JobCard from "@/components/JobCard";
+import CompanyLogo from "@/components/CompanyLogo";
 
 interface CompanyPageProps {
   params: Promise<{ slug: string }>;
@@ -27,29 +28,38 @@ export default async function CompanyDetailPage({ params }: CompanyPageProps) {
         Bütün şirkətlər
       </Link>
 
-      {company.banner && (
-        <div className="relative h-48 w-full overflow-hidden rounded-xl">
-          <Image
-            src={company.banner}
-            alt={`${company.name} banner`}
-            fill
-            className="object-cover"
-          />
-        </div>
-      )}
+      <div className="rounded-xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
+        {/* Banner + Logo overlay (LinkedIn style) */}
+        <div className="relative">
+          {/* Banner */}
+          {company.banner ? (
+            <div className="relative h-48 w-full overflow-hidden rounded-t-xl">
+              <Image
+                src={company.banner}
+                alt={`${company.name} banner`}
+                fill
+                className="object-cover"
+              />
+            </div>
+          ) : (
+            <div className="h-48 w-full rounded-t-xl bg-gradient-to-r from-emerald-600 to-emerald-400" />
+          )}
 
-      <div className="rounded-xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
-          <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-slate-100 bg-white dark:border-slate-700 dark:bg-slate-800">
-            <Image
-              src={company.logo}
-              alt={company.name}
-              width={80}
-              height={80}
-              className="h-14 w-14 object-contain"
-            />
+          {/* Logo overlapping banner bottom */}
+          <div className="absolute -bottom-10 left-6">
+            <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-xl border-4 border-white bg-white shadow-lg dark:border-slate-900 dark:bg-slate-800">
+              <CompanyLogo
+                src={company.logo}
+                alt={company.name}
+                className="h-18 w-18 object-contain"
+              />
+            </div>
           </div>
-          <div className="flex-1 space-y-2">
+        </div>
+
+        {/* Company info */}
+        <div className="pt-14 px-6 pb-6">
+          <div className="space-y-3">
             <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
               {company.name}
             </h1>

@@ -21,10 +21,6 @@ export default async function AdminDashboardPage() {
 
   const formattedJobs = jobs.map((job: any) => ({
     ...job,
-    requirements:
-      typeof job.requirements === "string"
-        ? JSON.parse(job.requirements)
-        : job.requirements,
     createdAt: job.createdAt.toISOString(),
   }));
 

@@ -23,7 +23,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-slate-200 bg-white/95 backdrop-blur-sm dark:border-slate-800 dark:bg-[#0f172a]/95">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
         <div className="flex items-center gap-3">
           <button
             onClick={onMenuClick}
@@ -36,9 +36,9 @@ export default function Header({ onMenuClick }: HeaderProps) {
             <Image
               src="/logo.png"
               alt="tejob.az logo"
-              width={210}
-              height={60}
-              className="h-14 w-auto object-contain"
+              width={140}
+              height={40}
+              className="h-9 w-auto object-contain"
               priority
             />
           </Link>

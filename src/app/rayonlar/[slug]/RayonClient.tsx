@@ -40,7 +40,7 @@ export default function RayonClient({ region, positions, sectors }: RayonClientP
             <JobCard
               key={job.id}
               job={job as any}
-              onSelect={setSelectedJob}
+              onSelectJob={setSelectedJob}
               isSelected={selectedJob?.id === job.id}
             />
           ))}

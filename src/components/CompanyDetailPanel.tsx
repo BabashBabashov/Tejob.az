@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import {
   Building2,
   Briefcase,
@@ -10,6 +9,7 @@ import {
   X,
   ExternalLink,
 } from "lucide-react";
+import CompanyLogo from "./CompanyLogo";
 
 interface CompanyDetailPanelProps {
   company: {
@@ -53,41 +53,45 @@ export default function CompanyDetailPanel({
         </button>
       </div>
 
-      {company.banner && (
-        <div className="relative mb-4 h-24 w-full overflow-hidden rounded-lg">
-          <Image
-            src={company.banner}
-            alt={`${company.name} banner`}
-            fill
-            className="object-cover"
-          />
-        </div>
-      )}
-
-      <div className="flex items-start gap-4">
-        <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-slate-100 bg-white dark:border-slate-700 dark:bg-slate-800">
-          <Image
-            src={company.logo}
-            alt={company.name}
-            width={64}
-            height={64}
-            className="h-12 w-12 object-contain"
-          />
-        </div>
-        <div className="min-w-0 flex-1">
-          <h3 className="font-semibold text-slate-900 dark:text-slate-100">{company.name}</h3>
-          <p className="inline-flex items-center gap-1 text-sm text-slate-600 dark:text-slate-400">
-            <Building2 size={14} />
-            {company.sector}
-          </p>
+      {/* LinkedIn style banner + logo */}
+      <div className="relative mb-4">
+        {company.banner ? (
+          <div className="relative h-24 w-full overflow-hidden rounded-lg">
+            <Image
+              src={company.banner}
+              alt={`${company.name} banner`}
+              fill
+              className="object-cover"
+            />
+          </div>
+        ) : (
+          <div className="h-24 w-full rounded-lg bg-gradient-to-r from-emerald-600 to-emerald-400" />
+        )}
+        {/* Logo overlapping banner */}
+        <div className="absolute -bottom-5 left-3">
+          <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-xl border-2 border-white bg-white shadow-md dark:border-slate-900 dark:bg-slate-800">
+            <CompanyLogo
+              src={company.logo}
+              alt={company.name}
+              className="h-10 w-10 object-contain"
+            />
+          </div>
         </div>
       </div>
 
-      <p className="mt-4 text-sm text-slate-700 dark:text-slate-300">
+      <div className="mt-6 space-y-2">
+        <h3 className="font-semibold text-slate-900 dark:text-slate-100">{company.name}</h3>
+        <p className="inline-flex items-center gap-1 text-sm text-slate-600 dark:text-slate-400">
+          <Building2 size={14} />
+          {company.sector}
+        </p>
+      </div>
+
+      <p className="mt-3 text-sm text-slate-700 dark:text-slate-300">
         {company.description}
       </p>
 
-      <div className="mt-4 flex flex-wrap gap-3">
+      <div className="mt-3 flex flex-wrap gap-3">
         {company.email && (
           <a
             href={`mailto:${company.email}`}

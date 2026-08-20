@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import JobCard from "@/components/JobCard";
 import JobDetailPanel from "@/components/JobDetailPanel";
 import ListingLayout from "@/components/ListingLayout";
@@ -25,21 +25,40 @@ export default function BookmarkedJobsPage() {
   const [loading, setLoading] = useState(true);
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
 
-  useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem("bookmarkedJobs") || "[]");
+  const loadBookmarks = useCallback(async () => {
+    setLoading(true);
+    try {
+      const saved: string[] = JSON.parse(localStorage.getItem("bookmarkedJobs") || "[]");
 
-    const fetchJobs = saved.length
-      ? fetch(`/api/jobs?ids=${saved.join(",")}`).then((res) => res.json())
-      : Promise.resolve({ jobs: [] });
+      const [jobsData, positionsData, sectorsData] = await Promise.all([
+        saved.length
+          ? fetch(`/api/jobs?ids=${saved.join(",")}`).then((res) => res.json())
+          : Promise.resolve({ jobs: [] }),
+        fetch("/api/positions").then((r) => r.json()),
+        fetch("/api/sectors").then((r) => r.json()),
+      ]);
 
-    Promise.all([fetchJobs, fetch("/api/positions").then((r) => r.json()), fetch("/api/sectors").then((r) => r.json())])
-      .then(([jobsData, positionsData, sectorsData]) => {
-        setJobs(jobsData.jobs || []);
-        setPositions(positionsData || []);
-        setSectors(sectorsData || []);
-      })
-      .finally(() => setLoading(false));
+      // Preserve bookmark order
+      const jobsList: Job[] = jobsData.jobs || [];
+      const ordered: Job[] = saved
+        .map((id: string) => jobsList.find((j: Job) => j.id === id))
+        .filter((j): j is Job => Boolean(j));
+
+      setJobs(ordered);
+      setPositions(positionsData || []);
+      setSectors(sectorsData || []);
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    loadBookmarks();
+
+    const handleBookmarksChanged = () => loadBookmarks();
+    window.addEventListener("bookmarksChanged", handleBookmarksChanged);
+    return () => window.removeEventListener("bookmarksChanged", handleBookmarksChanged);
+  }, [loadBookmarks]);
 
   return (
     <ListingLayout
@@ -68,7 +87,7 @@ export default function BookmarkedJobsPage() {
             <JobCard
               key={job.id}
               job={job as any}
-              onSelect={setSelectedJob}
+              onSelectJob={setSelectedJob}
               isSelected={selectedJob?.id === job.id}
             />
           ))}

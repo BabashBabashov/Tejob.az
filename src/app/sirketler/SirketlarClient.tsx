@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import Image from "next/image";
 import { Search, Briefcase, Building2 } from "lucide-react";
 import ListingLayout from "@/components/ListingLayout";
 import CompanyDetailPanel from "@/components/CompanyDetailPanel";
+import CompanyLogo from "@/components/CompanyLogo";
 import { Job } from "@/lib/types";
 
 interface Company {
@@ -83,11 +83,9 @@ export default function SirketlarClient({
             >
               <div className="flex items-start gap-3">
                 <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-slate-100 bg-white dark:border-slate-700 dark:bg-slate-800">
-                  <Image
+                  <CompanyLogo
                     src={company.logo}
                     alt={company.name}
-                    width={56}
-                    height={56}
                     className="h-10 w-10 object-contain"
                   />
                 </div>

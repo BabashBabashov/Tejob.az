@@ -2,35 +2,28 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
+  Briefcase,
   Layers,
   Star,
   Heart,
   GraduationCap,
+  Building2,
+  MapPin,
+  Users,
+  BookOpen,
   Rss,
-  Shield,
   ChevronDown,
   ChevronRight,
+  Newspaper,
 } from "lucide-react";
 import { socialLinks } from "@/lib/data";
-
-interface NavItem {
-  href: string;
-  label: string;
-  icon: React.ElementType;
-  count?: number;
-}
 
 interface SidebarProps {
   positions?: { slug: string; name: string; jobCount?: number }[];
   sectors?: { slug: string; name: string; jobCount?: number }[];
 }
-
-const bottomItems = [
-  { href: "/abune", label: "İş elanına abunə", icon: Rss },
-  { href: "/sertler", label: "Şərtlər", icon: Shield },
-];
 
 function getSocialIcon(name: string) {
   switch (name) {
@@ -95,8 +88,13 @@ export default function Sidebar({ positions = [], sectors = [] }: SidebarProps) 
     }`;
 
   return (
-    <aside className="sticky top-16 hidden h-[calc(100vh-4rem)] w-64 shrink-0 flex-col gap-6 overflow-y-auto border-r border-slate-200 bg-white px-4 py-6 lg:flex dark:border-slate-800 dark:bg-[#0f172a]">
-      <nav className="flex flex-col gap-1">
+    <aside className="sticky top-16 hidden h-[calc(100vh-4rem)] w-52 shrink-0 flex-col gap-2 overflow-y-auto border-r border-slate-200 bg-white px-2 py-4 lg:flex dark:border-slate-800 dark:bg-[#0f172a]">
+      {/* Main navigation */}
+      <nav className="flex flex-col gap-0.5">
+        <Link href="/" className={linkClass("/")}>
+          <Briefcase size={18} />
+          Vakansiyalar
+        </Link>
         <Link href="/secilmis-elanlar" className={linkClass("/secilmis-elanlar")}>
           <Star size={18} />
           Seçilmiş elanlar
@@ -111,36 +109,8 @@ export default function Sidebar({ positions = [], sectors = [] }: SidebarProps) 
         </Link>
       </nav>
 
-      <div className="border-t border-slate-200 pt-4 dark:border-slate-800">
-        <button
-          onClick={() => setOpenSectors((prev) => !prev)}
-          className="flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
-        >
-          <span className="flex items-center gap-3">
-            <Star size={18} />
-            Sektorlar
-          </span>
-          {openSectors ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
-        </button>
-        {openSectors && (
-          <div className="mt-1 flex max-h-60 flex-col gap-1 overflow-y-auto pl-4">
-            {sectors.map((sector) => (
-              <Link
-                key={sector.slug}
-                href={`/sektorlar/${sector.slug}`}
-                className={itemLinkClass(`/sektorlar/${sector.slug}`)}
-              >
-                <span>{sector.name}</span>
-                <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600 dark:bg-slate-800 dark:text-slate-400">
-                  {sector.jobCount || 0}
-                </span>
-              </Link>
-            ))}
-          </div>
-        )}
-      </div>
-
-      <div className="border-t border-slate-200 pt-4 dark:border-slate-800">
+      {/* Vəzifələr */}
+      <div className="mt-2 border-t border-slate-100 pt-2 dark:border-slate-800">
         <button
           onClick={() => setOpenPositions((prev) => !prev)}
           className="flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
@@ -152,7 +122,7 @@ export default function Sidebar({ positions = [], sectors = [] }: SidebarProps) 
           {openPositions ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
         </button>
         {openPositions && (
-          <div className="mt-1 flex max-h-60 flex-col gap-1 overflow-y-auto pl-4">
+          <div className="mt-1 flex max-h-60 flex-col gap-0.5 overflow-y-auto pl-4">
             {positions.map((position) => (
               <Link
                 key={position.slug}
@@ -169,19 +139,57 @@ export default function Sidebar({ positions = [], sectors = [] }: SidebarProps) 
         )}
       </div>
 
-      <div className="border-t border-slate-200 pt-4 dark:border-slate-800">
-        <nav className="flex flex-col gap-1">
-          {bottomItems.map((item) => (
-            <Link key={item.href} href={item.href} className={linkClass(item.href)}>
-              <item.icon size={18} />
-              {item.label}
-            </Link>
-          ))}
+      {/* Sektorlar */}
+      <div className="border-t border-slate-100 pt-2 dark:border-slate-800">
+        <button
+          onClick={() => setOpenSectors((prev) => !prev)}
+          className="flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+        >
+          <span className="flex items-center gap-3">
+            <Newspaper size={18} />
+            Sektorlar
+          </span>
+          {openSectors ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+        </button>
+        {openSectors && (
+          <div className="mt-1 flex max-h-60 flex-col gap-0.5 overflow-y-auto pl-4">
+            {sectors.map((sector) => (
+              <Link
+                key={sector.slug}
+                href={`/sektorlar/${sector.slug}`}
+                className={itemLinkClass(`/sektorlar/${sector.slug}`)}
+              >
+                <span>{sector.name}</span>
+                <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600 dark:bg-slate-800 dark:text-slate-400">
+                  {sector.jobCount || 0}
+                </span>
+              </Link>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Links */}
+      <div className="border-t border-slate-100 pt-2 dark:border-slate-800">
+        <nav className="flex flex-col gap-0.5">
+          <Link href="/sirketler" className={linkClass("/sirketler")}>
+            <Building2 size={18} />
+            Şirkətlər
+          </Link>
+          <Link href="/rayonlar" className={linkClass("/rayonlar")}>
+            <MapPin size={18} />
+            Rayonlar
+          </Link>
+          <Link href="/abune" className={linkClass("/abune")}>
+            <Rss size={18} />
+            İş elanına abunə
+          </Link>
         </nav>
       </div>
 
-      <div className="border-t border-slate-200 pt-4 dark:border-slate-800">
-        <p className="mb-3 px-3 text-xs font-medium text-slate-400">Sosial şəbəkələr</p>
+      {/* Social */}
+      <div className="mt-auto border-t border-slate-100 pt-3 dark:border-slate-800">
+        <p className="mb-2 px-3 text-xs font-medium text-slate-400">Sosial şəbəkələr</p>
         <div className="grid grid-cols-3 gap-2 px-3">
           {socialLinks.map((link) => (
             <a
@@ -189,7 +197,7 @@ export default function Sidebar({ positions = [], sectors = [] }: SidebarProps) 
               href={link.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-600 transition-colors hover:bg-emerald-100 hover:text-emerald-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-emerald-900/30 dark:hover:text-emerald-400"
+              className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-slate-600 transition-colors hover:bg-emerald-100 hover:text-emerald-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-emerald-900/30 dark:hover:text-emerald-400"
               title={link.name}
             >
               {getSocialIcon(link.name)}

@@ -1,6 +1,5 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
 import {
   MapPin,
   Calendar,
@@ -15,6 +14,7 @@ import {
 } from "lucide-react";
 import { getJobBySlug, formatDate } from "@/lib/api";
 import ViewCounter from "./ViewCounter";
+import CompanyLogo from "@/components/CompanyLogo";
 
 interface JobDetailPageProps {
   params: Promise<{ id: string }>;
@@ -46,11 +46,9 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex gap-4">
             <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-slate-100 bg-white dark:border-slate-700 dark:bg-slate-800">
-              <Image
-                src={company?.logo || "/logo.png"}
+              <CompanyLogo
+                src={company?.logo}
                 alt={company?.name || "Şirkət logosu"}
-                width={64}
-                height={64}
                 className="h-12 w-12 object-contain"
               />
             </div>

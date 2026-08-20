@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Save, X, Upload } from "lucide-react";
 
@@ -35,6 +35,25 @@ export default function CompanyForm({ company }: CompanyFormProps) {
   const [error, setError] = useState("");
   const logoInputRef = useRef<HTMLInputElement>(null);
   const bannerInputRef = useRef<HTMLInputElement>(null);
+
+  // Sector autocomplete
+  const [sectorSuggestions, setSectorSuggestions] = useState<string[]>([]);
+  const [showSectorSuggestions, setShowSectorSuggestions] = useState(false);
+  const sectorRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (formData.sector.trim().length < 2) {
+      setSectorSuggestions([]);
+      return;
+    }
+    const timer = setTimeout(() => {
+      fetch(`/api/sectors?q=${encodeURIComponent(formData.sector)}`)
+        .then((res) => res.json())
+        .then((data) => setSectorSuggestions(data.map((s: any) => s.name)))
+        .catch(() => setSectorSuggestions([]));
+    }, 200);
+    return () => clearTimeout(timer);
+  }, [formData.sector]);
 
   const uploadFile = async (file: File, field: "logo" | "banner") => {
     if (!file) return;
@@ -127,20 +146,39 @@ export default function CompanyForm({ company }: CompanyFormProps) {
           />
         </div>
 
-        <div className="sm:col-span-2">
+        <div className="relative sm:col-span-2">
           <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
             Sektor
           </label>
           <input
+            ref={sectorRef}
             type="text"
             required
             value={formData.sector}
             onChange={(e) =>
               setFormData((prev) => ({ ...prev, sector: e.target.value }))
             }
+            onFocus={() => setShowSectorSuggestions(true)}
+            onBlur={() => setTimeout(() => setShowSectorSuggestions(false), 200)}
             placeholder="məs: Retail / Satış"
             className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
           />
+          {showSectorSuggestions && sectorSuggestions.length > 0 && (
+            <ul className="absolute z-10 mt-1 max-h-40 w-full overflow-auto rounded-lg border border-slate-200 bg-white shadow-lg dark:border-slate-700 dark:bg-slate-800">
+              {sectorSuggestions.map((name) => (
+                <li
+                  key={name}
+                  onMouseDown={() => {
+                    setFormData((prev) => ({ ...prev, sector: name }));
+                    setShowSectorSuggestions(false);
+                  }}
+                  className="cursor-pointer px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-700"
+                >
+                  {name}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </div>
 

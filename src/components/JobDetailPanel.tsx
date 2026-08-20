@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import {
   MapPin,
   Calendar,
@@ -17,6 +16,7 @@ import {
 } from "lucide-react";
 import { Job } from "@/lib/types";
 import { formatDate } from "@/lib/utils";
+import CompanyLogo from "./CompanyLogo";
 
 interface JobDetailPanelProps {
   job: Job | null;
@@ -51,11 +51,9 @@ export default function JobDetailPanel({ job, onClose }: JobDetailPanelProps) {
 
       <div className="flex items-start gap-4">
         <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-slate-100 bg-white dark:border-slate-700 dark:bg-slate-800">
-          <Image
-            src={company?.logo || "/logo.png"}
+          <CompanyLogo
+            src={company?.logo}
             alt={company?.name || "Şirkət logosu"}
-            width={64}
-            height={64}
             className="h-12 w-12 object-contain"
           />
         </div>

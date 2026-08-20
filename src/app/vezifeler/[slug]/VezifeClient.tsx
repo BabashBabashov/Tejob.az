@@ -40,7 +40,7 @@ export default function VezifeClient({ position, positions, sectors }: VezifeCli
             <JobCard
               key={job.id}
               job={job as any}
-              onSelect={setSelectedJob}
+              onSelectJob={setSelectedJob}
               isSelected={selectedJob?.id === job.id}
             />
           ))}
