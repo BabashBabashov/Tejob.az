@@ -57,11 +57,10 @@ export default function CompanyDetailPanel({
       <div className="relative mb-4">
         {company.banner ? (
           <div className="relative h-24 w-full overflow-hidden rounded-lg">
-            <Image
+            <img
               src={company.banner}
               alt={`${company.name} banner`}
-              fill
-              className="object-cover"
+              className="h-full w-full object-cover"
             />
           </div>
         ) : (

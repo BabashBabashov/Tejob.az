@@ -1,6 +1,5 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
 import { Building2, Briefcase, ArrowLeft, Mail, Phone } from "lucide-react";
 import { getCompanyBySlug } from "@/lib/api";
 import JobCard from "@/components/JobCard";
@@ -34,11 +33,10 @@ export default async function CompanyDetailPage({ params }: CompanyPageProps) {
           {/* Banner */}
           {company.banner ? (
             <div className="relative h-48 w-full overflow-hidden rounded-t-xl">
-              <Image
+              <img
                 src={company.banner}
                 alt={`${company.name} banner`}
-                fill
-                className="object-cover"
+                className="h-full w-full object-cover"
               />
             </div>
           ) : (
