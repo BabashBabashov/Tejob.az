@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { Job } from "@/lib/types";
 import { formatDate } from "@/lib/utils";
+import { hasViewedRecently, markViewed } from "@/lib/viewCounter";
 import CompanyLogo from "./CompanyLogo";
 
 interface JobDetailPanelProps {
@@ -25,10 +26,12 @@ interface JobDetailPanelProps {
 }
 
 export default function JobDetailPanel({ job, onClose }: JobDetailPanelProps) {
-  // Increment view count when a job is selected
+  // Increment view count when a job is selected (once per 24h per user)
   useEffect(() => {
-    if (job?.slug) {
-      fetch(`/api/jobs/${job.slug}/view/`, { method: "POST" }).catch(() => {});
+    if (job?.slug && !hasViewedRecently(job.slug)) {
+      fetch(`/api/jobs/${job.slug}/view/`, { method: "POST" })
+        .then(() => markViewed(job.slug))
+        .catch(() => {});
     }
   }, [job?.slug]);
 

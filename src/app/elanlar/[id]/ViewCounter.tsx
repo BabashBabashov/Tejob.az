@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { hasViewedRecently, markViewed } from "@/lib/viewCounter";
 
 interface ViewCounterProps {
   slug: string;
@@ -8,9 +9,11 @@ interface ViewCounterProps {
 
 export default function ViewCounter({ slug }: ViewCounterProps) {
   useEffect(() => {
-    fetch(`/api/jobs/${slug}/view/`, { method: "POST" }).catch(() => {
-      // Silently ignore errors to not break user experience
-    });
+    if (hasViewedRecently(slug)) return;
+
+    fetch(`/api/jobs/${slug}/view/`, { method: "POST" })
+      .then(() => markViewed(slug))
+      .catch(() => {});
   }, [slug]);
 
   return null;
