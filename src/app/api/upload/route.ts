@@ -1,10 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { writeFile, mkdir } from "fs/promises";
-import { join } from "path";
 import { requireAuth } from "@/lib/auth";
 
 const ALLOWED_EXTENSIONS = ["jpg", "jpeg", "png"];
-const MAX_SIZE = 5 * 1024 * 1024;
+const MAX_SIZE = 2 * 1024 * 1024; // 2MB for base64
 
 export async function POST(request: NextRequest) {
   try {
@@ -28,24 +26,18 @@ export async function POST(request: NextRequest) {
 
     if (file.size > MAX_SIZE) {
       return NextResponse.json(
-        { error: "Fayl ölçüsü 5 MB-dan çox ola bilməz" },
+        { error: "Fayl ölçüsü 2 MB-dan çox ola bilməz" },
         { status: 400 }
       );
     }
 
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
+    const base64 = buffer.toString("base64");
+    const mimeType = file.type || (ext === "png" ? "image/png" : "image/jpeg");
+    const dataUrl = `data:${mimeType};base64,${base64}`;
 
-    const filename = `${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
-    const uploadDir = join(process.cwd(), "public", "uploads");
-
-    // Ensure the uploads directory exists
-    await mkdir(uploadDir, { recursive: true });
-
-    const filepath = join(uploadDir, filename);
-    await writeFile(filepath, buffer);
-
-    return NextResponse.json({ url: `/uploads/${filename}` });
+    return NextResponse.json({ url: dataUrl });
   } catch (error) {
     if (error instanceof Error && error.message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
