@@ -94,11 +94,11 @@ export default function SirketlarClient({
               }`}
             >
               {/* Logo */}
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800">
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-full border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800">
                 <CompanyLogo
                   src={company.logo}
                   alt={company.name}
-                  className="h-10 w-10 rounded-full object-contain"
+                  className="h-12 w-12 rounded-full object-contain"
                 />
               </div>
 

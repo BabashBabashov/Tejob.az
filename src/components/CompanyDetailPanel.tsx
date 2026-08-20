@@ -69,7 +69,7 @@ export default function CompanyDetailPanel({
       {/* Banner */}
       <div className="relative">
         {company.banner ? (
-          <div className="relative h-36 w-full overflow-t rounded-t-xl">
+          <div className="relative h-52 w-full overflow-hidden rounded-t-xl">
             <img
               src={company.banner}
               alt={`${company.name} banner`}
@@ -77,27 +77,35 @@ export default function CompanyDetailPanel({
             />
           </div>
         ) : (
-          <div className="h-36 w-full rounded-t-xl bg-gradient-to-r from-emerald-600 to-emerald-400" />
+          <div className="h-52 w-full rounded-t-xl bg-gradient-to-r from-emerald-600 to-emerald-400" />
         )}
 
+        {/* Close button */}
+        <button
+          onClick={onClose}
+          className="absolute top-2 right-2 rounded-full bg-black/40 p-1.5 text-white hover:bg-black/60"
+        >
+          <X size={16} />
+        </button>
+
         {/* Logo overlapping banner */}
-        <div className="absolute -bottom-6 left-4">
-          <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-xl border-3 border-white bg-white shadow-lg dark:border-slate-900 dark:bg-slate-800">
+        <div className="absolute -bottom-8 left-4">
+          <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-2xl border-4 border-white bg-white shadow-lg dark:border-slate-900 dark:bg-slate-800">
             <CompanyLogo
               src={company.logo}
               alt={company.name}
-              className="h-12 w-12 object-contain"
+              className="h-16 w-16 object-contain"
             />
           </div>
         </div>
       </div>
 
       {/* Company info */}
-      <div className="px-4 pt-8 pb-3">
-        <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">
+      <div className="px-4 pt-10 pb-3">
+        <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">
           {company.name}
         </h3>
-        <p className="mt-0.5 text-sm text-slate-500 dark:text-slate-400">
+        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
           {company.sector}
         </p>
       </div>
