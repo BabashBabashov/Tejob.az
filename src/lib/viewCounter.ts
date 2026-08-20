@@ -1,5 +1,5 @@
 const VIEW_KEY_PREFIX = "job_view_";
-const VIEW_EXPIRY_MS = 24 * 60 * 60 * 1000; // 24 hours
+const VIEW_EXPIRY_MS = 12 * 60 * 60 * 1000; // 12 hours
 
 export function hasViewedRecently(slug: string): boolean {
   if (typeof window === "undefined") return true;
