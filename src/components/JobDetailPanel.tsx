@@ -75,7 +75,7 @@ export default function JobDetailPanel({ job, onClose, onSelectJob }: JobDetailP
   const region = job.region;
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
+    <div className="flex h-full flex-col rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
       {/* Company header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -153,7 +153,7 @@ export default function JobDetailPanel({ job, onClose, onSelectJob }: JobDetailP
       </div>
 
       {/* Tab content */}
-      <div className="mt-4 max-h-[calc(100vh-28rem)] overflow-y-auto">
+      <div className="mt-4 flex-1 overflow-y-auto">
         {activeTab === "description" ? (
           <div className="space-y-4">
             <p className="whitespace-pre-line text-sm leading-relaxed text-slate-700 dark:text-slate-300">

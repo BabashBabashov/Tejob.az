@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface CompanyLogoProps {
   src: string | null | undefined;
@@ -10,6 +10,10 @@ interface CompanyLogoProps {
 
 export default function CompanyLogo({ src, alt, className = "" }: CompanyLogoProps) {
   const [imgSrc, setImgSrc] = useState(src || "/logo.png");
+
+  useEffect(() => {
+    setImgSrc(src || "/logo.png");
+  }, [src]);
 
   return (
     <img
