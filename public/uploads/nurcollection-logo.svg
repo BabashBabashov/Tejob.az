@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <rect width="200" height="200" rx="20" fill="#1a0a2e"/>
+  <circle cx="100" cy="75" r="30" fill="none" stroke="#d4a5ff" stroke-width="3"/>
+  <circle cx="100" cy="75" r="15" fill="#d4a5ff" opacity="0.3"/>
+  <text x="100" y="130" text-anchor="middle" font-family="Georgia, serif" font-size="22" font-weight="bold" fill="#d4a5ff">NUR</text>
+  <text x="100" y="155" text-anchor="middle" font-family="Georgia, serif" font-size="12" fill="#e8d5ff">COLLECTION</text>
+</svg>

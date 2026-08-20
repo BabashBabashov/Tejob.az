@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="400" viewBox="0 0 1200 400">
+  <defs>
+    <linearGradient id="bc-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2d2d2d"/>
+      <stop offset="100%" style="stop-color:#1a1a1a"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="400" fill="url(#bc-bg)"/>
+  <polygon points="1000,50 1150,200 1000,200" fill="#f5a623" opacity="0.15"/>
+  <polygon points="1050,100 1150,200 1050,200" fill="#f5a623" opacity="0.1"/>
+  <rect x="50" y="350" width="1100" height="8" fill="#f5a623" opacity="0.3"/>
+  <text x="600" y="170" text-anchor="middle" font-family="Arial, sans-serif" font-size="52" font-weight="bold" fill="#ffffff">BAKU CONSTRUCTION</text>
+  <text x="600" y="220" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" fill="#f5a623">Etibarlı Tikinti, Keyfiyyətli Nəticə</text>
+  <line x1="420" y1="250" x2="780" y2="250" stroke="#f5a623" stroke-width="1.5"/>
+</svg>

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <rect width="200" height="200" rx="20" fill="#2d2d2d"/>
+  <polygon points="100,30 160,90 100,90" fill="#f5a623"/>
+  <polygon points="100,50 140,90 100,90" fill="#d4922a"/>
+  <rect x="60" y="95" width="80" height="10" fill="#f5a623"/>
+  <text x="100" y="135" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#ffffff">BAKU</text>
+  <text x="100" y="158" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#f5a623">CONSTRUCTION</text>
+</svg>

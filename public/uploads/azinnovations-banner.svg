@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="400" viewBox="0 0 1200 400">
+  <defs>
+    <linearGradient id="az-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0a1628"/>
+      <stop offset="100%" style="stop-color:#0d2137"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="400" fill="url(#az-bg)"/>
+  <circle cx="100" cy="350" r="120" fill="#00d4aa" opacity="0.05"/>
+  <circle cx="1100" cy="50" r="80" fill="#00d4aa" opacity="0.05"/>
+  <text x="600" y="170" text-anchor="middle" font-family="Arial, sans-serif" font-size="48" font-weight="bold" fill="#00d4aa">AZ INNOVATIONS</text>
+  <text x="600" y="220" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" fill="#ffffff">Texnologiya və İnnovasiya Həlləri</text>
+  <line x1="450" y1="250" x2="750" y2="250" stroke="#00d4aa" stroke-width="1.5"/>
+</svg>

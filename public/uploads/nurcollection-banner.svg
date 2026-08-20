@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="400" viewBox="0 0 1200 400">
+  <defs>
+    <linearGradient id="nur-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a0a2e"/>
+      <stop offset="100%" style="stop-color:#2d1b4e"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="400" fill="url(#nur-bg)"/>
+  <circle cx="1050" cy="100" r="100" fill="#d4a5ff" opacity="0.08"/>
+  <circle cx="150" cy="350" r="80" fill="#d4a5ff" opacity="0.05"/>
+  <circle cx="600" cy="120" r="40" fill="none" stroke="#d4a5ff" stroke-width="2" opacity="0.4"/>
+  <circle cx="600" cy="120" r="20" fill="#d4a5ff" opacity="0.2"/>
+  <text x="600" y="200" text-anchor="middle" font-family="Georgia, serif" font-size="52" font-weight="bold" fill="#d4a5ff">NUR COLLECTION</text>
+  <text x="600" y="245" text-anchor="middle" font-family="Georgia, serif" font-size="18" fill="#e8d5ff">Zəriflik və keyfiyyət</text>
+  <line x1="460" y1="270" x2="740" y2="270" stroke="#d4a5ff" stroke-width="1"/>
+</svg>
