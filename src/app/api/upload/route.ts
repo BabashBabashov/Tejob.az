@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { writeFile } from "fs/promises";
+import { writeFile, mkdir } from "fs/promises";
 import { join } from "path";
 import { requireAuth } from "@/lib/auth";
 
-const ALLOWED_TYPES = ["image/jpeg", "image/jpg", "image/png"];
+const ALLOWED_EXTENSIONS = ["jpg", "jpeg", "png"];
 const MAX_SIZE = 5 * 1024 * 1024;
 
 export async function POST(request: NextRequest) {
@@ -17,7 +17,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Fayl seçilməyib" }, { status: 400 });
     }
 
-    if (!ALLOWED_TYPES.includes(file.type)) {
+    const originalName = file.name.toLowerCase();
+    const ext = originalName.split(".").pop();
+    if (!ext || !ALLOWED_EXTENSIONS.includes(ext)) {
       return NextResponse.json(
         { error: "Yalnız JPG, JPEG və PNG faylları icazə verilir" },
         { status: 400 }
@@ -34,11 +36,13 @@ export async function POST(request: NextRequest) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    const ext = file.type === "image/png" ? "png" : "jpg";
     const filename = `${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
     const uploadDir = join(process.cwd(), "public", "uploads");
-    const filepath = join(uploadDir, filename);
 
+    // Ensure the uploads directory exists
+    await mkdir(uploadDir, { recursive: true });
+
+    const filepath = join(uploadDir, filename);
     await writeFile(filepath, buffer);
 
     return NextResponse.json({ url: `/uploads/${filename}` });
