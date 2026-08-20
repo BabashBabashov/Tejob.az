@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect } from "react";
 import {
   MapPin,
   Calendar,
@@ -24,6 +25,13 @@ interface JobDetailPanelProps {
 }
 
 export default function JobDetailPanel({ job, onClose }: JobDetailPanelProps) {
+  // Increment view count when a job is selected
+  useEffect(() => {
+    if (job?.slug) {
+      fetch(`/api/jobs/${job.slug}/view/`, { method: "POST" }).catch(() => {});
+    }
+  }, [job?.slug]);
+
   if (!job) {
     return (
       <div className="rounded-xl border border-dashed border-slate-300 bg-white py-12 text-center dark:border-slate-700 dark:bg-slate-900">
