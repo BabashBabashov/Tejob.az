@@ -63,6 +63,7 @@ export default function CompanyForm({ company }: CompanyFormProps) {
     try {
       const res = await fetch("/api/upload", {
         method: "POST",
+        credentials: "include",
         body: data,
       });
       const result = await res.json();
