@@ -1,6 +1,8 @@
 import { getCompanies, getPositions, getSectors, getJobs } from "@/lib/api";
 import SirketlarClient from "./SirketlarClient";
 
+export const dynamic = "force-dynamic";
+
 export default async function CompaniesPage() {
   const [companies, positions, sectors, jobsData] = await Promise.all([
     getCompanies(),

@@ -3,6 +3,8 @@ import { prisma } from "@/lib/prisma";
 import { getAuthAdmin } from "@/lib/auth";
 import CompaniesTable from "./CompaniesTable";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminCompaniesPage() {
   const admin = await getAuthAdmin();
 
