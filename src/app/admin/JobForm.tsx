@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Save, X, Plus, Trash2 } from "lucide-react";
+import { Save, X, Upload } from "lucide-react";
 import type { Company, Region, Category, Job } from "@prisma/client";
 
 interface JobFormProps {
@@ -17,16 +17,24 @@ interface JobFormData {
   title: string;
   companyId: string;
   regionId: string;
+  sectorName: string;
   categoryIds: string[];
   description: string;
-  requirements: string[];
   salary: string;
   workType: string;
   deadline: string;
   contactPhone: string;
   contactEmail: string;
   isPremium: boolean;
+  isInternship: boolean;
+  isWomenOnly: boolean;
   showViews: boolean;
+  views: number;
+}
+
+interface CompanyData {
+  phone?: string | null;
+  email?: string | null;
 }
 
 export default function JobForm({
@@ -42,100 +50,82 @@ export default function JobForm({
     title: job?.title || "",
     companyId: job?.companyId || companies[0]?.id || "",
     regionId: job?.regionId || regions[0]?.id || "",
+    sectorName: job?.sectorName || "",
     categoryIds: job?.categoryIds || [],
     description: job?.description || "",
-    requirements: job?.requirements?.length ? job.requirements : [""],
-    salary: job?.salary || "",
+    salary: job?.salary || "Razılaşma yolu ilə",
     workType: job?.workType || "Tam ştat",
     deadline: job?.deadline || "",
     contactPhone: job?.contactPhone || "",
     contactEmail: job?.contactEmail || "",
     isPremium: job?.isPremium || false,
-    showViews: job?.showViews || false,
+    isInternship: job?.isInternship || false,
+    isWomenOnly: job?.isWomenOnly || false,
+    showViews: job?.showViews ?? true,
+    views: job?.views || 0,
   });
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | string[]>("");
+  const [positionSuggestions, setPositionSuggestions] = useState<string[]>([]);
+  const [showPositionSuggestions, setShowPositionSuggestions] = useState(false);
+  const [sectorSuggestions, setSectorSuggestions] = useState<string[]>([]);
+  const [showSectorSuggestions, setShowSectorSuggestions] = useState(false);
+  const titleRef = useRef<HTMLInputElement>(null);
+  const sectorRef = useRef<HTMLInputElement>(null);
 
-  const handleCategoryToggle = (categoryId: string, type: string) => {
+  useEffect(() => {
+    const company = companies.find((c) => c.id === formData.companyId);
+    if (company && !isEditing) {
+      setFormData((prev) => ({
+        ...prev,
+        contactPhone: company.phone || "",
+        contactEmail: company.email || "",
+      }));
+    }
+  }, [formData.companyId, companies, isEditing]);
+
+  useEffect(() => {
+    if (formData.title.trim().length < 2) {
+      setPositionSuggestions([]);
+      return;
+    }
+    const timer = setTimeout(() => {
+      fetch(`/api/positions?q=${encodeURIComponent(formData.title)}`)
+        .then((res) => res.json())
+        .then((data) => setPositionSuggestions(data.map((p: any) => p.name)))
+        .catch(() => setPositionSuggestions([]));
+    }, 200);
+    return () => clearTimeout(timer);
+  }, [formData.title]);
+
+  useEffect(() => {
+    if (formData.sectorName.trim().length < 2) {
+      setSectorSuggestions([]);
+      return;
+    }
+    const timer = setTimeout(() => {
+      fetch(`/api/sectors?q=${encodeURIComponent(formData.sectorName)}`)
+        .then((res) => res.json())
+        .then((data) => setSectorSuggestions(data.map((s: any) => s.name)))
+        .catch(() => setSectorSuggestions([]));
+    }, 200);
+    return () => clearTimeout(timer);
+  }, [formData.sectorName]);
+
+  const handleCategoryToggle = (categoryId: string) => {
     setFormData((prev) => {
       const exists = prev.categoryIds.includes(categoryId);
-      let nextCategoryIds = exists
+      const nextCategoryIds = exists
         ? prev.categoryIds.filter((id) => id !== categoryId)
         : [...prev.categoryIds, categoryId];
-
-      // For sector and position, keep only one selection per type to avoid confusion
-      if (type === "sector" || type === "position") {
-        const sameTypeIds = categories
-          .filter((c) => c.type === type && c.id !== categoryId)
-          .map((c) => c.id);
-        nextCategoryIds = nextCategoryIds.filter((id) => !sameTypeIds.includes(id));
-      }
-
       return { ...prev, categoryIds: nextCategoryIds };
     });
-  };
-
-  const renderCategoryButtons = (type: string, label: string) => {
-    const filtered = categories.filter((c) => c.type === type);
-    if (filtered.length === 0) return null;
-    return (
-      <div className="space-y-2">
-        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-          {label}
-        </label>
-        <div className="flex flex-wrap gap-2">
-          {filtered.map((category) => {
-            const selected = formData.categoryIds.includes(category.id);
-            return (
-              <button
-                key={category.id}
-                type="button"
-                onClick={() => handleCategoryToggle(category.id, category.type)}
-                className={`rounded-lg border px-3 py-1.5 text-sm transition-colors ${
-                  selected
-                    ? "border-emerald-500 bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400"
-                    : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
-                }`}
-              >
-                {category.name}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-    );
-  };
-
-  const addRequirement = () => {
-    setFormData((prev) => ({
-      ...prev,
-      requirements: [...prev.requirements, ""],
-    }));
-  };
-
-  const updateRequirement = (index: number, value: string) => {
-    setFormData((prev) => {
-      const updated = [...prev.requirements];
-      updated[index] = value;
-      return { ...prev, requirements: updated };
-    });
-  };
-
-  const removeRequirement = (index: number) => {
-    setFormData((prev) => ({
-      ...prev,
-      requirements: prev.requirements.filter((_, i) => i !== index),
-    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-
-    const trimmedRequirements = formData.requirements.filter(
-      (r) => r.trim() !== ""
-    );
 
     if (formData.title.trim().length < 3) {
       setError("Vəzifə adı ən azı 3 simvol olmalıdır");
@@ -152,33 +142,13 @@ export default function JobForm({
       return;
     }
 
-    const sectorCategories = categories.filter((c) => c.type === "sector");
-    const positionCategories = categories.filter((c) => c.type === "position");
-
-    const hasSector = formData.categoryIds.some((id) =>
-      sectorCategories.some((c) => c.id === id)
-    );
-    const hasPosition = formData.categoryIds.some((id) =>
-      positionCategories.some((c) => c.id === id)
-    );
-
-    if (!hasSector) {
-      setError("Ən azı bir sektor seçilməlidir");
-      return;
-    }
-
-    if (!hasPosition) {
-      setError("Ən azı bir vəzifə seçilməlidir");
+    if (!formData.sectorName.trim()) {
+      setError("Sektor adı daxil edilməlidir");
       return;
     }
 
     if (formData.description.trim().length < 10) {
       setError("İş haqqında məlumat ən azı 10 simvol olmalıdır");
-      return;
-    }
-
-    if (trimmedRequirements.length === 0) {
-      setError("Ən azı bir tələb daxil edilməlidir");
       return;
     }
 
@@ -194,7 +164,7 @@ export default function JobForm({
 
     const payload = {
       ...formData,
-      requirements: trimmedRequirements,
+      salary: formData.salary || "Razılaşma yolu ilə",
     };
 
     try {
@@ -243,19 +213,38 @@ export default function JobForm({
       )}
 
       <div className="grid gap-6 sm:grid-cols-2">
-        <div className="sm:col-span-2">
+        <div className="relative sm:col-span-2">
           <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
             Vəzifə adı
           </label>
           <input
+            ref={titleRef}
             type="text"
             required
             value={formData.title}
             onChange={(e) =>
               setFormData((prev) => ({ ...prev, title: e.target.value }))
             }
+            onFocus={() => setShowPositionSuggestions(true)}
+            onBlur={() => setTimeout(() => setShowPositionSuggestions(false), 200)}
             className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
           />
+          {showPositionSuggestions && positionSuggestions.length > 0 && (
+            <ul className="absolute z-10 mt-1 max-h-40 w-full overflow-auto rounded-lg border border-slate-200 bg-white shadow-lg dark:border-slate-700 dark:bg-slate-800">
+              {positionSuggestions.map((name) => (
+                <li
+                  key={name}
+                  onMouseDown={() => {
+                    setFormData((prev) => ({ ...prev, title: name }));
+                    setShowPositionSuggestions(false);
+                  }}
+                  className="cursor-pointer px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-700"
+                >
+                  {name}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
 
         <div>
@@ -299,12 +288,64 @@ export default function JobForm({
         </div>
       </div>
 
+      <div className="relative">
+        <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
+          Sektor
+        </label>
+        <input
+          ref={sectorRef}
+          type="text"
+          required
+          value={formData.sectorName}
+          onChange={(e) =>
+            setFormData((prev) => ({ ...prev, sectorName: e.target.value }))
+          }
+          onFocus={() => setShowSectorSuggestions(true)}
+          onBlur={() => setTimeout(() => setShowSectorSuggestions(false), 200)}
+          placeholder="məs: Retail / Satış"
+          className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+        />
+        {showSectorSuggestions && sectorSuggestions.length > 0 && (
+          <ul className="absolute z-10 mt-1 max-h-40 w-full overflow-auto rounded-lg border border-slate-200 bg-white shadow-lg dark:border-slate-700 dark:bg-slate-800">
+            {sectorSuggestions.map((name) => (
+              <li
+                key={name}
+                onMouseDown={() => {
+                  setFormData((prev) => ({ ...prev, sectorName: name }));
+                  setShowSectorSuggestions(false);
+                }}
+                className="cursor-pointer px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-700"
+              >
+                {name}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
       <div className="space-y-4">
         <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
           Kateqoriyalar
         </label>
-        {renderCategoryButtons("sector", "Sektor")}
-        {renderCategoryButtons("position", "Vəzifə")}
+        <div className="flex flex-wrap gap-2">
+          {categories.map((category) => {
+            const selected = formData.categoryIds.includes(category.id);
+            return (
+              <button
+                key={category.id}
+                type="button"
+                onClick={() => handleCategoryToggle(category.id)}
+                className={`rounded-lg border px-3 py-1.5 text-sm transition-colors ${
+                  selected
+                    ? "border-emerald-500 bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400"
+                    : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
+                }`}
+              >
+                {category.name}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       <div>
@@ -313,49 +354,13 @@ export default function JobForm({
         </label>
         <textarea
           required
-          rows={5}
+          rows={6}
           value={formData.description}
           onChange={(e) =>
             setFormData((prev) => ({ ...prev, description: e.target.value }))
           }
           className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
         />
-      </div>
-
-      <div>
-        <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
-          Tələblər
-        </label>
-        <div className="space-y-2">
-          {formData.requirements.map((req, index) => (
-            <div key={index} className="flex gap-2">
-              <input
-                type="text"
-                value={req}
-                onChange={(e) => updateRequirement(index, e.target.value)}
-                placeholder={`Tələb ${index + 1}`}
-                className="flex-1 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
-              />
-              {formData.requirements.length > 1 && (
-                <button
-                  type="button"
-                  onClick={() => removeRequirement(index)}
-                  className="rounded-lg border border-slate-200 p-2 text-slate-500 hover:bg-red-50 hover:text-red-600 dark:border-slate-700 dark:text-slate-300"
-                >
-                  <Trash2 size={16} />
-                </button>
-              )}
-            </div>
-          ))}
-          <button
-            type="button"
-            onClick={addRequirement}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
-          >
-            <Plus size={16} />
-            Tələb əlavə et
-          </button>
-        </div>
       </div>
 
       <div className="grid gap-6 sm:grid-cols-3">
@@ -386,11 +391,10 @@ export default function JobForm({
             className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
           >
             <option value="Tam ştat">Tam ştat</option>
-            <option value="Hissəvi">Hissəvi</option>
+            <option value="Yarımştat">Yarımştat</option>
             <option value="Uzaqdan">Uzaqdan</option>
             <option value="Növbəli">Növbəli</option>
             <option value="Frilans">Frilans</option>
-            <option value="Təcrübə">Təcrübə</option>
           </select>
         </div>
 
@@ -447,7 +451,7 @@ export default function JobForm({
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <label className="flex items-center gap-2">
           <input
             type="checkbox"
@@ -468,6 +472,40 @@ export default function JobForm({
         <label className="flex items-center gap-2">
           <input
             type="checkbox"
+            checked={formData.isInternship}
+            onChange={(e) =>
+              setFormData((prev) => ({
+                ...prev,
+                isInternship: e.target.checked,
+              }))
+            }
+            className="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+          />
+          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+            Təcrübə proqramı
+          </span>
+        </label>
+
+        <label className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            checked={formData.isWomenOnly}
+            onChange={(e) =>
+              setFormData((prev) => ({
+                ...prev,
+                isWomenOnly: e.target.checked,
+              }))
+            }
+            className="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+          />
+          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+            Qadın işləri
+          </span>
+        </label>
+
+        <label className="flex items-center gap-2">
+          <input
+            type="checkbox"
             checked={formData.showViews}
             onChange={(e) =>
               setFormData((prev) => ({
@@ -478,10 +516,30 @@ export default function JobForm({
             className="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
           />
           <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-            Admin paneldə baxış sayını göstər
+            Baxış sayını göstər
           </span>
         </label>
       </div>
+
+      {isEditing && (
+        <div>
+          <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
+            Baxış sayı
+          </label>
+          <input
+            type="number"
+            min={0}
+            value={formData.views}
+            onChange={(e) =>
+              setFormData((prev) => ({
+                ...prev,
+                views: parseInt(e.target.value || "0", 10),
+              }))
+            }
+            className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+          />
+        </div>
+      )}
 
       <div className="flex items-center justify-end gap-3 pt-4">
         <button

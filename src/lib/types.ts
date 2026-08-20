@@ -3,10 +3,11 @@ export interface Company {
   slug: string;
   name: string;
   logo: string;
+  banner?: string | null;
   sector: string;
   description: string;
-  email?: string;
-  phone?: string;
+  email?: string | null;
+  phone?: string | null;
 }
 
 export interface Region {
@@ -31,13 +32,13 @@ export interface SeedJob {
   regionId: string;
   categoryIds: string[];
   description: string;
-  requirements: string[];
   salary?: string;
   workType?: string;
   deadline?: string;
   contactPhone?: string;
   contactEmail?: string;
   isPremium: boolean;
+  showViews?: boolean;
   views: number;
   createdAt: string;
 }
@@ -47,18 +48,36 @@ export interface Job {
   slug: string;
   title: string;
   description: string;
-  requirements: string[];
   salary?: string | null;
   workType?: string | null;
   deadline?: string | null;
   contactPhone?: string | null;
   contactEmail?: string | null;
   isPremium: boolean;
+  showViews: boolean;
+  isInternship: boolean;
+  isWomenOnly: boolean;
   views: number;
   createdAt: string;
   company: Company;
   region: Region;
+  position?: Position;
+  sector?: Sector;
   categories?: Category[];
+}
+
+export interface Position {
+  id: string;
+  slug: string;
+  name: string;
+  jobCount?: number;
+}
+
+export interface Sector {
+  id: string;
+  slug: string;
+  name: string;
+  jobCount?: number;
 }
 
 export interface SocialLink {

@@ -1,118 +1,20 @@
-"use client";
+import { getCompanies, getPositions, getSectors, getJobs } from "@/lib/api";
+import SirketlarClient from "./SirketlarClient";
 
-import { useState, useMemo, useEffect } from "react";
-import Link from "next/link";
-import Image from "next/image";
-import { Search, Building2, Briefcase } from "lucide-react";
-
-interface Company {
-  id: string;
-  slug: string;
-  name: string;
-  logo: string;
-  sector: string;
-  jobCount: number;
-}
-
-export default function CompaniesPage() {
-  const [companies, setCompanies] = useState<Company[]>([]);
-  const [query, setQuery] = useState("");
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetch("/api/companies/")
-      .then((res) => res.json())
-      .then((data) => {
-        setCompanies(data);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, []);
-
-  const filteredCompanies = useMemo(() => {
-    return companies
-      .filter((company) =>
-        company.name.toLowerCase().includes(query.toLowerCase())
-      )
-      .sort((a, b) => b.jobCount - a.jobCount);
-  }, [companies, query]);
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-200 border-t-emerald-600" />
-      </div>
-    );
-  }
+export default async function CompaniesPage() {
+  const [companies, positions, sectors, jobsData] = await Promise.all([
+    getCompanies(),
+    getPositions(),
+    getSectors(),
+    getJobs(1, 1000),
+  ]);
 
   return (
-    <div className="space-y-6">
-      <div className="space-y-1">
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
-          Şirkətlər
-        </h1>
-        <p className="text-slate-500 dark:text-slate-400">
-          İş elanı yerləşdirən şirkətlər
-        </p>
-      </div>
-
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-        <input
-          type="text"
-          placeholder="Şirkət adına görə axtar"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          className="w-full rounded-lg border border-slate-200 bg-white py-2.5 pl-9 pr-3 text-sm text-slate-900 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
-        />
-      </div>
-
-      {filteredCompanies.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-slate-300 bg-white py-12 text-center dark:border-slate-700 dark:bg-slate-900">
-          <p className="text-slate-500 dark:text-slate-400">
-            Şirkət tapılmadı.
-          </p>
-        </div>
-      ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {filteredCompanies.map((company) => (
-            <Link
-              key={company.id}
-              href={`/sirketler/${company.slug}`}
-              className="group flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-4 transition-all hover:border-emerald-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:border-emerald-700"
-            >
-              <div className="flex items-start gap-3">
-                <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-slate-100 bg-white dark:border-slate-700 dark:bg-slate-800">
-                  <Image
-                    src={company.logo}
-                    alt={company.name}
-                    width={56}
-                    height={56}
-                    className="h-10 w-10 object-contain"
-                  />
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-semibold text-slate-900 group-hover:text-emerald-700 dark:text-slate-100 dark:group-hover:text-emerald-400">
-                    {company.name}
-                  </h3>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
-                    {company.sector}
-                  </p>
-                </div>
-              </div>
-              <div className="mt-auto flex items-center justify-between border-t border-slate-100 pt-3 dark:border-slate-800">
-                <span className="inline-flex items-center gap-1 text-xs font-medium text-slate-600 dark:text-slate-400">
-                  <Briefcase size={13} />
-                  {company.jobCount} {company.jobCount === 1 ? "elan" : "elan"}
-                </span>
-                <span className="text-xs font-medium text-emerald-700 dark:text-emerald-400">
-                  Ətraflı →
-                </span>
-              </div>
-            </Link>
-          ))}
-        </div>
-      )}
-    </div>
+    <SirketlarClient
+      initialCompanies={companies}
+      positions={positions}
+      sectors={sectors}
+      jobs={jobsData.jobs}
+    />
   );
 }

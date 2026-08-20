@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Save, X } from "lucide-react";
+import { Save, X, Upload } from "lucide-react";
 
 interface CompanyFormProps {
   company?: {
@@ -11,6 +11,7 @@ interface CompanyFormProps {
     sector: string;
     description: string;
     logo: string;
+    banner?: string | null;
     email: string | null;
     phone: string | null;
   };
@@ -25,11 +26,46 @@ export default function CompanyForm({ company }: CompanyFormProps) {
     sector: company?.sector || "",
     description: company?.description || "",
     logo: company?.logo || "/logo.png",
+    banner: company?.banner || "",
     email: company?.email || "",
     phone: company?.phone || "",
   });
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
+  const logoInputRef = useRef<HTMLInputElement>(null);
+  const bannerInputRef = useRef<HTMLInputElement>(null);
+
+  const uploadFile = async (file: File, field: "logo" | "banner") => {
+    if (!file) return;
+    setUploading(true);
+    const data = new FormData();
+    data.append("file", file);
+    try {
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: data,
+      });
+      const result = await res.json();
+      if (!res.ok) {
+        setError(result.error || "Upload xətası");
+      } else {
+        setFormData((prev) => ({ ...prev, [field]: result.url }));
+      }
+    } catch {
+      setError("Upload xətası");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleFileChange = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    field: "logo" | "banner"
+  ) => {
+    const file = e.target.files?.[0];
+    if (file) await uploadFile(file, field);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -91,7 +127,7 @@ export default function CompanyForm({ company }: CompanyFormProps) {
           />
         </div>
 
-        <div>
+        <div className="sm:col-span-2">
           <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
             Sektor
           </label>
@@ -106,20 +142,75 @@ export default function CompanyForm({ company }: CompanyFormProps) {
             className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
           />
         </div>
+      </div>
+
+      <div className="grid gap-6 sm:grid-cols-2">
+        <div>
+          <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
+            Logo
+          </label>
+          <input
+            ref={logoInputRef}
+            type="file"
+            accept=".jpg,.jpeg,.png"
+            onChange={(e) => handleFileChange(e, "logo")}
+            className="hidden"
+          />
+          <div className="flex items-center gap-3">
+            {formData.logo && (
+              <img
+                src={formData.logo}
+                alt="Logo"
+                className="h-12 w-12 rounded-lg border border-slate-200 object-contain dark:border-slate-700"
+              />
+            )}
+            <button
+              type="button"
+              onClick={() => logoInputRef.current?.click()}
+              disabled={uploading}
+              className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
+            >
+              <Upload size={16} />
+              Logo yüklə
+            </button>
+          </div>
+          <p className="mt-1 text-xs text-slate-500">
+            JPG, JPEG, PNG (max 5 MB)
+          </p>
+        </div>
 
         <div>
           <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
-            Logo URL
+            Banner
           </label>
           <input
-            type="text"
-            value={formData.logo}
-            onChange={(e) =>
-              setFormData((prev) => ({ ...prev, logo: e.target.value }))
-            }
-            placeholder="/logo.png"
-            className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+            ref={bannerInputRef}
+            type="file"
+            accept=".jpg,.jpeg,.png"
+            onChange={(e) => handleFileChange(e, "banner")}
+            className="hidden"
           />
+          <div className="flex items-center gap-3">
+            {formData.banner && (
+              <img
+                src={formData.banner}
+                alt="Banner"
+                className="h-12 w-24 rounded-lg border border-slate-200 object-cover dark:border-slate-700"
+              />
+            )}
+            <button
+              type="button"
+              onClick={() => bannerInputRef.current?.click()}
+              disabled={uploading}
+              className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
+            >
+              <Upload size={16} />
+              Banner yüklə
+            </button>
+          </div>
+          <p className="mt-1 text-xs text-slate-500">
+            JPG, JPEG, PNG (max 5 MB)
+          </p>
         </div>
       </div>
 
@@ -181,7 +272,7 @@ export default function CompanyForm({ company }: CompanyFormProps) {
         </button>
         <button
           type="submit"
-          disabled={loading}
+          disabled={loading || uploading}
           className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-70"
         >
           <Save size={16} />

@@ -16,6 +16,8 @@ export async function getJobs(page = 1, limit = 20) {
       include: {
         company: true,
         region: true,
+        position: true,
+        sector: true,
         categories: true,
       },
       orderBy: [{ isPremium: "desc" }, { createdAt: "desc" }],
@@ -36,10 +38,6 @@ export async function getJobs(page = 1, limit = 20) {
   return {
     jobs: jobs.map((job: any) => ({
       ...job,
-      requirements:
-        typeof job.requirements === "string"
-          ? JSON.parse(job.requirements)
-          : job.requirements,
       createdAt: job.createdAt.toISOString().split("T")[0],
     })),
     total,
@@ -54,6 +52,8 @@ export async function getJobBySlug(slug: string) {
     include: {
       company: true,
       region: true,
+      position: true,
+      sector: true,
       categories: true,
     },
   });
@@ -62,10 +62,6 @@ export async function getJobBySlug(slug: string) {
 
   return {
     ...job,
-    requirements:
-      typeof job.requirements === "string"
-        ? JSON.parse(job.requirements)
-        : job.requirements,
     createdAt: job.createdAt.toISOString().split("T")[0],
   };
 }
@@ -93,6 +89,8 @@ export async function getCompanyBySlug(slug: string) {
       jobs: {
         include: {
           region: true,
+          position: true,
+          sector: true,
           categories: true,
         },
         orderBy: [{ isPremium: "desc" }, { createdAt: "desc" }],
@@ -106,10 +104,6 @@ export async function getCompanyBySlug(slug: string) {
     ...company,
     jobs: company.jobs.map((job: any) => ({
       ...job,
-      requirements:
-        typeof job.requirements === "string"
-          ? JSON.parse(job.requirements)
-          : job.requirements,
       createdAt: job.createdAt.toISOString().split("T")[0],
     })),
   };
@@ -138,6 +132,8 @@ export async function getRegionBySlug(slug: string) {
       jobs: {
         include: {
           company: true,
+          position: true,
+          sector: true,
           categories: true,
         },
         orderBy: [{ isPremium: "desc" }, { createdAt: "desc" }],
@@ -151,10 +147,6 @@ export async function getRegionBySlug(slug: string) {
     ...region,
     jobs: region.jobs.map((job: any) => ({
       ...job,
-      requirements:
-        typeof job.requirements === "string"
-          ? JSON.parse(job.requirements)
-          : job.requirements,
       createdAt: job.createdAt.toISOString().split("T")[0],
     })),
   };
@@ -174,6 +166,8 @@ export async function getCategoryBySlug(slug: string) {
         include: {
           company: true,
           region: true,
+          position: true,
+          sector: true,
           categories: true,
         },
         orderBy: [{ isPremium: "desc" }, { createdAt: "desc" }],
@@ -187,10 +181,94 @@ export async function getCategoryBySlug(slug: string) {
     ...category,
     jobs: category.jobs.map((job: any) => ({
       ...job,
-      requirements:
-        typeof job.requirements === "string"
-          ? JSON.parse(job.requirements)
-          : job.requirements,
+      createdAt: job.createdAt.toISOString().split("T")[0],
+    })),
+  };
+}
+
+export async function getPositions() {
+  const positions = await prisma.position.findMany({
+    orderBy: { name: "asc" },
+    include: {
+      _count: {
+        select: { jobs: true },
+      },
+    },
+  });
+
+  return positions.map((position: any) => ({
+    ...position,
+    jobCount: position._count.jobs,
+  }));
+}
+
+export async function getSectors() {
+  const sectors = await prisma.sector.findMany({
+    orderBy: { name: "asc" },
+    include: {
+      _count: {
+        select: { jobs: true },
+      },
+    },
+  });
+
+  return sectors.map((sector: any) => ({
+    ...sector,
+    jobCount: sector._count.jobs,
+  }));
+}
+
+export async function getPositionBySlug(slug: string) {
+  const position = await prisma.position.findUnique({
+    where: { slug },
+    include: {
+      jobs: {
+        include: {
+          company: true,
+          region: true,
+          position: true,
+          sector: true,
+          categories: true,
+        },
+        orderBy: [{ isPremium: "desc" }, { createdAt: "desc" }],
+      },
+    },
+  });
+
+  if (!position) return null;
+
+  return {
+    ...position,
+    jobs: position.jobs.map((job: any) => ({
+      ...job,
+      createdAt: job.createdAt.toISOString().split("T")[0],
+    })),
+  };
+}
+
+export async function getSectorBySlug(slug: string) {
+  const sector = await prisma.sector.findUnique({
+    where: { slug },
+    include: {
+      jobs: {
+        include: {
+          company: true,
+          region: true,
+          position: true,
+          sector: true,
+          categories: true,
+        },
+        orderBy: [{ isPremium: "desc" }, { createdAt: "desc" }],
+      },
+    },
+  });
+
+  if (!sector) return null;
+
+  return {
+    ...sector,
+    jobs: sector.jobs.map((job: any) => ({
+      ...job,
       createdAt: job.createdAt.toISOString().split("T")[0],
     })),
   };

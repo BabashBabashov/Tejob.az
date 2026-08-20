@@ -9,6 +9,7 @@ const companyUpdateSchema = z.object({
   sector: z.string().min(2),
   description: z.string().min(10),
   logo: z.string().default("/logo.png"),
+  banner: z.string().optional().or(z.literal("")),
   email: z.string().email().optional().or(z.literal("")),
   phone: z.string().optional(),
 });
@@ -80,6 +81,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
         sector: validated.sector,
         description: validated.description,
         logo: validated.logo,
+        banner: validated.banner || null,
         email: validated.email || null,
         phone: validated.phone || null,
       },

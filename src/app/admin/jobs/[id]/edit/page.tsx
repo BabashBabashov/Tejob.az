@@ -18,7 +18,7 @@ export default async function EditJobPage({ params }: EditJobPageProps) {
 
   const job = await prisma.job.findUnique({
     where: { id },
-    include: { categories: true },
+    include: { company: true, region: true, position: true, sector: true, categories: true },
   });
 
   if (!job) {
@@ -33,17 +33,17 @@ export default async function EditJobPage({ params }: EditJobPageProps) {
 
   const formattedJob = {
     ...job,
-    requirements:
-      typeof job.requirements === "string"
-        ? JSON.parse(job.requirements)
-        : job.requirements,
     categoryIds: job.categories.map((c: { id: string }) => c.id),
-    salary: job.salary ?? "",
+    sectorName: job.sector?.name || "",
+    salary: job.salary ?? "Razılaşma yolu ilə",
     workType: job.workType ?? "",
     deadline: job.deadline ?? "",
     contactPhone: job.contactPhone ?? "",
     contactEmail: job.contactEmail ?? "",
     showViews: job.showViews,
+    isInternship: job.isInternship,
+    isWomenOnly: job.isWomenOnly,
+    views: job.views,
   };
 
   return (

@@ -8,6 +8,8 @@ import { socialLinks } from "@/lib/data";
 interface MobileNavProps {
   isOpen: boolean;
   onClose: () => void;
+  positions?: { slug: string; name: string; jobCount?: number }[];
+  sectors?: { slug: string; name: string; jobCount?: number }[];
 }
 
 const mainNav = [
@@ -18,21 +20,13 @@ const mainNav = [
   { href: "/elaqe", label: "Əlaqə", icon: Phone },
 ];
 
-const categoryNav = [
-  { href: "/kateqoriya/vezifeler", label: "Vəzifələr", icon: Layers },
-  { href: "/kateqoriya/sektorlar", label: "Sektorlar", icon: Star },
-  { href: "/kateqoriya/qadin-isleri", label: "Qadın işləri", icon: Heart },
-  { href: "/kateqoriya/tecrube-proqramlari", label: "Təcrübə Proqramları", icon: GraduationCap },
-  { href: "/kateqoriya/secilmis-elanlar", label: "Seçilmiş elanlar", icon: Star },
-];
-
 const bottomNav = [
   { href: "/abune", label: "İş elanına abunə", icon: Rss },
   { href: "/sertler", label: "Şərtlər", icon: Shield },
   { href: "/is-elani-yerlesdir", label: "Elan yerləşdir", icon: null },
 ];
 
-export default function MobileNav({ isOpen, onClose }: MobileNavProps) {
+export default function MobileNav({ isOpen, onClose, positions = [], sectors = [] }: MobileNavProps) {
   const pathname = usePathname();
 
   const linkClass = (href: string, isButton = false) => {
@@ -85,10 +79,44 @@ export default function MobileNav({ isOpen, onClose }: MobileNavProps) {
           <div className="border-t border-slate-200 pt-3 dark:border-slate-800">
             <p className="mb-2 px-3 text-xs font-medium text-slate-400">Kateqoriyalar</p>
             <nav className="flex flex-col gap-1">
-              {categoryNav.map((item) => (
-                <Link key={item.href} href={item.href} onClick={onClose} className={linkClass(item.href)}>
-                  <item.icon size={18} />
-                  {item.label}
+              <Link href="/secilmis-elanlar" onClick={onClose} className={linkClass("/secilmis-elanlar")}>
+                <Star size={18} />
+                Seçilmiş elanlar
+              </Link>
+              <Link href="/kateqoriya/qadin-isleri" onClick={onClose} className={linkClass("/kateqoriya/qadin-isleri")}>
+                <Heart size={18} />
+                Qadın işləri
+              </Link>
+              <Link href="/kateqoriya/tecrube-proqramlari" onClick={onClose} className={linkClass("/kateqoriya/tecrube-proqramlari")}>
+                <GraduationCap size={18} />
+                Təcrübə Proqramları
+              </Link>
+            </nav>
+          </div>
+
+          <div className="border-t border-slate-200 pt-3 dark:border-slate-800">
+            <p className="mb-2 px-3 text-xs font-medium text-slate-400">Sektorlar</p>
+            <nav className="flex flex-col gap-1">
+              {sectors.map((sector) => (
+                <Link key={sector.slug} href={`/sektorlar/${sector.slug}`} onClick={onClose} className={linkClass(`/sektorlar/${sector.slug}`)}>
+                  <span>{sector.name}</span>
+                  <span className="ml-auto rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600 dark:bg-slate-800 dark:text-slate-400">
+                    {sector.jobCount || 0}
+                  </span>
+                </Link>
+              ))}
+            </nav>
+          </div>
+
+          <div className="border-t border-slate-200 pt-3 dark:border-slate-800">
+            <p className="mb-2 px-3 text-xs font-medium text-slate-400">Vəzifələr</p>
+            <nav className="flex flex-col gap-1">
+              {positions.map((position) => (
+                <Link key={position.slug} href={`/vezifeler/${position.slug}`} onClick={onClose} className={linkClass(`/vezifeler/${position.slug}`)}>
+                  <span>{position.name}</span>
+                  <span className="ml-auto rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600 dark:bg-slate-800 dark:text-slate-400">
+                    {position.jobCount || 0}
+                  </span>
                 </Link>
               ))}
             </nav>

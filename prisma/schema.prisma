@@ -12,6 +12,7 @@ model Company {
   slug        String  @unique
   name        String
   logo        String  @default("/logo.png")
+  banner      String?
   sector      String
   description String
   email       String?
@@ -39,14 +40,15 @@ model Job {
   slug         String     @unique
   title        String
   description  String
-  requirements String
   salary       String?
   workType     String?
   deadline     String?
   contactPhone String?
   contactEmail String?
   isPremium    Boolean    @default(false)
-  showViews    Boolean    @default(false)
+  isInternship Boolean    @default(false)
+  isWomenOnly  Boolean    @default(false)
+  showViews    Boolean    @default(true)
   views        Int        @default(0)
   createdAt    DateTime   @default(now())
 
@@ -54,12 +56,32 @@ model Job {
   company      Company    @relation(fields: [companyId], references: [id])
   regionId     String
   region       Region     @relation(fields: [regionId], references: [id])
+  positionId   String?
+  position     Position?  @relation(fields: [positionId], references: [id])
+  sectorId     String?
+  sector       Sector?    @relation(fields: [sectorId], references: [id])
   categories   Category[]
 
   @@index([companyId])
   @@index([regionId])
   @@index([isPremium])
   @@index([createdAt])
+  @@index([positionId])
+  @@index([sectorId])
+}
+
+model Position {
+  id    String @id
+  slug  String @unique
+  name  String
+  jobs  Job[]
+}
+
+model Sector {
+  id    String @id
+  slug  String @unique
+  name  String
+  jobs  Job[]
 }
 
 model AdminUser {

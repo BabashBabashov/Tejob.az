@@ -27,6 +27,17 @@ export default async function CompanyDetailPage({ params }: CompanyPageProps) {
         Bütün şirkətlər
       </Link>
 
+      {company.banner && (
+        <div className="relative h-48 w-full overflow-hidden rounded-xl">
+          <Image
+            src={company.banner}
+            alt={`${company.name} banner`}
+            fill
+            className="object-cover"
+          />
+        </div>
+      )}
+
       <div className="rounded-xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
           <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-slate-100 bg-white dark:border-slate-700 dark:bg-slate-800">

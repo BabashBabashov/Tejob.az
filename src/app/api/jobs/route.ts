@@ -1,29 +1,32 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
 function formatJob(job: any) {
   return {
     ...job,
-    requirements:
-      typeof job.requirements === "string"
-        ? JSON.parse(job.requirements)
-        : job.requirements,
     createdAt: job.createdAt.toISOString(),
   };
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const { searchParams } = new URL(request.url);
+    const idsParam = searchParams.get("ids");
+    const ids = idsParam ? idsParam.split(",") : undefined;
+
     const jobs = await prisma.job.findMany({
+      where: ids ? { id: { in: ids } } : undefined,
       include: {
         company: true,
         region: true,
+        position: true,
+        sector: true,
         categories: true,
       },
       orderBy: [{ isPremium: "desc" }, { createdAt: "desc" }],
     });
 
-    return NextResponse.json(jobs.map(formatJob));
+    return NextResponse.json({ jobs: jobs.map(formatJob) });
   } catch (error) {
     console.error(error);
     return NextResponse.json(

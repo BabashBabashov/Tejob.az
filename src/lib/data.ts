@@ -85,12 +85,7 @@ export const jobs: SeedJob[] = [
     categoryIds: ["cat1", "cat2"],
     description:
       "OBA marketlər şəbəkəsinin Bakı şəhərindəki hipermarketlərinə maltoplayan tələb olunur. İş yeri xidməti mövcuddur.",
-    requirements: [
-      "Yaş həddi: 20-45",
-      "Əlaqəli sahədə təcrübə arzuolunandır",
-      "Dəqiqlik və məsuliyyətli yanaşma",
-    ],
-    salary: "600 - 800 AZN",
+        salary: "600 - 800 AZN",
     workType: "Tam ştat",
     deadline: "2026-09-15",
     contactPhone: "+994 55 111 22 33",
@@ -107,12 +102,7 @@ export const jobs: SeedJob[] = [
     categoryIds: ["cat1", "cat2"],
     description:
       "Salyan rayonunda yerləşən anbar kompleksimizdə anbar fəhləsi vəzifəsinə işçi tələb olunur.",
-    requirements: [
-      "Fiziki hazırlıq",
-      "Anbar işlərində təcrübə arzuolunandır",
-      "Salyan və ətraf rayonlarda yaşayanlar üçün üstünlük",
-    ],
-    salary: "500 - 650 AZN",
+        salary: "500 - 650 AZN",
     workType: "Tam ştat",
     deadline: "2026-09-10",
     contactPhone: "+994 55 111 22 33",
@@ -129,12 +119,7 @@ export const jobs: SeedJob[] = [
     categoryIds: ["cat1", "cat2"],
     description:
       "OBA marketlər şəbəkəsində keyfiyyətə nəzarət bölməsinə mütəxəssis tələb olunur.",
-    requirements: [
-      "Ali təhsil (istehsalat/istehsalat menecmenti üzrə üstünlük)",
-      "Əlaqəli sahədə minimum 2 illik təcrübə",
-      "MS Office proqramlarını bilmək",
-    ],
-    salary: "900 - 1200 AZN",
+        salary: "900 - 1200 AZN",
     workType: "Tam ştat",
     deadline: "2026-09-20",
     contactPhone: "+994 55 111 22 33",
@@ -151,12 +136,7 @@ export const jobs: SeedJob[] = [
     categoryIds: ["cat1", "cat3"],
     description:
       "Milla Dairy-nin Abşeron ərazisindəki istehsalat müəssisəsinə elektrik mühəndisliyi üzrə texnik tələb olunur.",
-    requirements: [
-      "Texniki təhsil",
-      "Sənaye elektriki sahəsində təcrübə",
-      "Avadanlıqların quraşdırılması və texniki xidməti",
-    ],
-    salary: "1000 - 1400 AZN",
+        salary: "1000 - 1400 AZN",
     workType: "Tam ştat",
     deadline: "2026-09-18",
     contactPhone: "+994 55 222 33 44",
@@ -173,12 +153,7 @@ export const jobs: SeedJob[] = [
     categoryIds: ["cat1", "cat2"],
     description:
       "OBA marketlər şəbəkəsinin Bakı şəhərindəki obyektlərinə təhlükəsizlik əməkdaşı tələb olunur.",
-    requirements: [
-      "Yaş həddi: 22-45",
-      "Fiziki hazırlıq",
-      "Oxşar vəzifədə təcrübə arzuolunandır",
-    ],
-    salary: "550 - 750 AZN",
+        salary: "550 - 750 AZN",
     workType: "Növbəli",
     deadline: "2026-09-12",
     contactPhone: "+994 55 111 22 33",
@@ -195,13 +170,7 @@ export const jobs: SeedJob[] = [
     categoryIds: ["cat1", "cat2", "cat3"],
     description:
       "AZ Innovations şirkətinin proqram təminatı komandasına React developer tələb olunur.",
-    requirements: [
-      "React, TypeScript bilikləri",
-      "Tailwind CSS və ya oxşar CSS framework təcrübəsi",
-      "REST API və Git bilikləri",
-      "Minimum 2 illik təcrübə",
-    ],
-    salary: "1500 - 2500 AZN",
+        salary: "1500 - 2500 AZN",
     workType: "Tam ştat / Uzaqdan",
     deadline: "2026-09-25",
     contactEmail: "jobs@azinnovations.az",
@@ -218,12 +187,7 @@ export const jobs: SeedJob[] = [
     categoryIds: ["cat1", "cat2"],
     description:
       "Sumqayıtda yerləşən tikinti layihəmizə tikinti fəhləsi tələb olunur.",
-    requirements: [
-      "Fiziki hazırlıq",
-      "Tikinti sahəsində təcrübə",
-      "İş qrafikinə riayət etmək",
-    ],
-    salary: "700 - 900 AZN",
+        salary: "700 - 900 AZN",
     workType: "Tam ştat",
     deadline: "2026-09-05",
     contactPhone: "+994 55 333 44 55",
@@ -240,12 +204,7 @@ export const jobs: SeedJob[] = [
     categoryIds: ["cat1", "cat6"],
     description:
       "MedLife Clinic-in Bakı şəhərindəki klinikasına tibb bacısı tələb olunur. Qadın namizədlər üçün əlverişli iş şəraiti.",
-    requirements: [
-      "Tibb təhsili",
-      "Nursing sahəsində təcrübə",
-      "Dəqiqlik və məsuliyyət",
-    ],
-    salary: "800 - 1100 AZN",
+        salary: "800 - 1100 AZN",
     workType: "Tam ştat",
     deadline: "2026-09-22",
     contactPhone: "+994 55 444 55 66",
@@ -262,12 +221,7 @@ export const jobs: SeedJob[] = [
     categoryIds: ["cat7"],
     description:
       "OBA marketlər şəbəkəsi tələbələr və yenicə məzun olmuşlar üçün satış üzrə təcrübə proqramı elan edir.",
-    requirements: [
-      "Universitet tələbəsi və ya son tədris ili",
-      "Kommunikatİv bacarıqlar",
-      "Yaradıcı düşüncə",
-    ],
-    salary: "500 AZN + bonus",
+        salary: "500 AZN + bonus",
     workType: "Tam ştat",
     deadline: "2026-09-30",
     contactPhone: "+994 55 111 22 33",
@@ -284,12 +238,7 @@ export const jobs: SeedJob[] = [
     categoryIds: ["cat1", "cat2"],
     description:
       "AZ Innovations şirkətinə mühasibat uçotu üzrə işçi tələb olunur.",
-    requirements: [
-      "Ali təhsil (iqtisadiyyat/mühasibatlıq)",
-      "1C proqramını bilmək",
-      "MS Excel bilikləri",
-    ],
-    salary: "900 - 1300 AZN",
+        salary: "900 - 1300 AZN",
     workType: "Tam ştat",
     deadline: "2026-09-15",
     contactEmail: "jobs@azinnovations.az",

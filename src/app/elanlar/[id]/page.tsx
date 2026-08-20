@@ -11,6 +11,7 @@ import {
   Clock,
   ArrowLeft,
   Building2,
+  Eye,
 } from "lucide-react";
 import { getJobBySlug, formatDate } from "@/lib/api";
 import ViewCounter from "./ViewCounter";
@@ -97,6 +98,12 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
               Son tarix: {formatDate(job.deadline)}
             </span>
           )}
+          {job.showViews && (
+            <span className="flex items-center gap-1.5">
+              <Eye size={16} />
+              {job.views} baxış
+            </span>
+          )}
         </div>
 
         <div className="mt-6 space-y-6">
@@ -109,16 +116,6 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
             </p>
           </section>
 
-          <section>
-            <h2 className="mb-2 text-lg font-semibold text-slate-900 dark:text-slate-100">
-              Tələblər
-            </h2>
-            <ul className="list-inside list-disc space-y-1 text-slate-700 dark:text-slate-300">
-              {job.requirements.map((req: string, index: number) => (
-                <li key={index}>{req}</li>
-              ))}
-            </ul>
-          </section>
 
           {job.salary && (
             <section>

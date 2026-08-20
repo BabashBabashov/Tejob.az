@@ -8,28 +8,44 @@ const jobSchema = z.object({
   title: z.string().min(3),
   companyId: z.string(),
   regionId: z.string(),
-  categoryIds: z.array(z.string()).min(1),
+  sectorName: z.string().min(1),
+  categoryIds: z.array(z.string()).optional(),
   description: z.string().min(10),
-  requirements: z.array(z.string()).min(1),
   salary: z.string().optional(),
   workType: z.string().optional(),
   deadline: z.string().optional(),
   contactPhone: z.string().optional(),
   contactEmail: z.string().email().optional().or(z.literal("")),
   isPremium: z.boolean().default(false),
-  showViews: z.boolean().default(false),
+  isInternship: z.boolean().default(false),
+  isWomenOnly: z.boolean().default(false),
+  showViews: z.boolean().default(true),
   views: z.number().int().default(0),
 });
 
 function formatJob(job: any) {
   return {
     ...job,
-    requirements:
-      typeof job.requirements === "string"
-        ? JSON.parse(job.requirements)
-        : job.requirements,
     createdAt: job.createdAt.toISOString(),
   };
+}
+
+async function findOrCreatePosition(name: string) {
+  const slug = slugify(name);
+  const existing = await prisma.position.findUnique({ where: { slug } });
+  if (existing) return existing;
+  return prisma.position.create({
+    data: { id: `pos_${Date.now()}`, slug, name },
+  });
+}
+
+async function findOrCreateSector(name: string) {
+  const slug = slugify(name);
+  const existing = await prisma.sector.findUnique({ where: { slug } });
+  if (existing) return existing;
+  return prisma.sector.create({
+    data: { id: `sector_${Date.now()}`, slug, name },
+  });
 }
 
 export async function GET() {
@@ -39,6 +55,8 @@ export async function GET() {
       include: {
         company: true,
         region: true,
+        position: true,
+        sector: true,
         categories: true,
       },
       orderBy: { createdAt: "desc" },
@@ -68,30 +86,40 @@ export async function POST(request: NextRequest) {
       counter++;
     }
 
+    const [position, sector] = await Promise.all([
+      findOrCreatePosition(validated.title),
+      findOrCreateSector(validated.sectorName),
+    ]);
+
     const job = await prisma.job.create({
       data: {
         id: `job_${Date.now()}`,
         slug,
         title: validated.title,
         description: validated.description,
-        requirements: JSON.stringify(validated.requirements),
-        salary: validated.salary || null,
+        salary: validated.salary || "Razılaşma yolu ilə",
         workType: validated.workType || null,
         deadline: validated.deadline || null,
         contactPhone: validated.contactPhone || null,
         contactEmail: validated.contactEmail || null,
         isPremium: validated.isPremium,
+        isInternship: validated.isInternship,
+        isWomenOnly: validated.isWomenOnly,
         showViews: validated.showViews,
         views: validated.views,
         company: { connect: { id: validated.companyId } },
         region: { connect: { id: validated.regionId } },
+        position: { connect: { id: position.id } },
+        sector: { connect: { id: sector.id } },
         categories: {
-          connect: validated.categoryIds.map((id) => ({ id })),
+          connect: (validated.categoryIds || []).map((id) => ({ id })),
         },
       },
       include: {
         company: true,
         region: true,
+        position: true,
+        sector: true,
         categories: true,
       },
     });
@@ -111,12 +139,10 @@ export async function POST(request: NextRequest) {
             return "Şirkət seçilməlidir";
           case "regionId":
             return "Region seçilməlidir";
-          case "categoryIds":
-            return "Ən azı bir kateqoriya seçilməlidir";
+          case "sectorName":
+            return "Sektor adı daxil edilməlidir";
           case "description":
             return "İş haqqında məlumat ən azı 10 simvol olmalıdır";
-          case "requirements":
-            return "Ən azı bir tələb daxil edilməlidir";
           case "contactEmail":
             return "Düzgün e-poçt ünvanı daxil edin";
           case "views":
