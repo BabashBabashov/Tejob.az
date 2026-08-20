@@ -51,62 +51,71 @@ export default function SirketlarClient({
       jobs={jobs}
       positions={positions}
       sectors={sectors}
-      detailPanel={<CompanyDetailPanel company={selectedCompany} onClose={() => setSelectedCompany(null)} />}
+      detailPanel={
+        <CompanyDetailPanel
+          company={selectedCompany}
+          onClose={() => setSelectedCompany(null)}
+          onSelectJob={(job) => {
+            // When a job is selected from company detail, navigate to it
+            window.location.href = `/elanlar/${job.slug}`;
+          }}
+        />
+      }
       selectedJobId={selectedCompany?.id}
     >
+      {/* Search */}
       <div className="relative">
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
         <input
           type="text"
-          placeholder="Şirkət adına görə axtar"
+          placeholder="Şirkət üzrə axtar"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="w-full rounded-lg border border-slate-200 bg-white py-2.5 pl-9 pr-3 text-sm text-slate-900 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+          className="w-full rounded-lg border border-slate-200 bg-white py-2.5 pl-9 pr-10 text-sm text-slate-900 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
         />
+        <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
       </div>
 
+      {/* Company list - JobSearch style */}
       {filteredCompanies.length === 0 ? (
         <div className="rounded-xl border border-dashed border-slate-300 bg-white py-12 text-center dark:border-slate-700 dark:bg-slate-900">
           <p className="text-slate-500 dark:text-slate-400">Şirkət tapılmadı.</p>
         </div>
       ) : (
-        <div className="flex flex-col gap-3 overflow-y-auto pr-1">
+        <div className="flex flex-col divide-y divide-slate-100 overflow-y-auto rounded-xl border border-slate-200 bg-white dark:divide-slate-800 dark:border-slate-800 dark:bg-slate-900">
           {filteredCompanies.map((company) => (
             <button
               key={company.id}
               onClick={() => setSelectedCompany(company)}
-              className={`group flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-4 text-left transition-all hover:border-emerald-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:border-emerald-700 ${
+              className={`flex items-center gap-4 px-4 py-3.5 text-left transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50 ${
                 selectedCompany?.id === company.id
-                  ? "border-emerald-500 ring-1 ring-emerald-500"
+                  ? "bg-emerald-50 dark:bg-emerald-900/10"
                   : ""
               }`}
             >
-              <div className="flex items-start gap-3">
-                <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-slate-100 bg-white dark:border-slate-700 dark:bg-slate-800">
-                  <CompanyLogo
-                    src={company.logo}
-                    alt={company.name}
-                    className="h-10 w-10 object-contain"
-                  />
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-semibold text-slate-900 group-hover:text-emerald-700 dark:text-slate-100 dark:group-hover:text-emerald-400">
-                    {company.name}
-                  </h3>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
-                    {company.sector}
-                  </p>
-                </div>
+              {/* Logo */}
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800">
+                <CompanyLogo
+                  src={company.logo}
+                  alt={company.name}
+                  className="h-10 w-10 rounded-full object-contain"
+                />
               </div>
-              <div className="mt-auto flex items-center justify-between border-t border-slate-100 pt-3 dark:border-slate-800">
-                <span className="inline-flex items-center gap-1 text-xs font-medium text-slate-600 dark:text-slate-400">
-                  <Briefcase size={13} />
-                  {company.jobCount} {company.jobCount === 1 ? "elan" : "elan"}
-                </span>
-                <span className="text-xs font-medium text-emerald-700 dark:text-emerald-400">
-                  Ətraflı →
-                </span>
+
+              {/* Name + sector */}
+              <div className="min-w-0 flex-1">
+                <h3 className="truncate text-sm font-semibold text-slate-900 dark:text-slate-100">
+                  {company.name}
+                </h3>
+                <p className="truncate text-xs text-slate-500 dark:text-slate-400">
+                  {company.sector}
+                </p>
               </div>
+
+              {/* Job count */}
+              <span className="shrink-0 text-xs font-medium text-slate-500 dark:text-slate-400">
+                {company.jobCount} iş elanı
+              </span>
             </button>
           ))}
         </div>
