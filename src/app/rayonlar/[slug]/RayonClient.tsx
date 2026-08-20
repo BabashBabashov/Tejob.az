@@ -25,7 +25,7 @@ export default function RayonClient({ region, positions, sectors }: RayonClientP
       jobs={region.jobs}
       positions={positions}
       sectors={sectors}
-      detailPanel={<JobDetailPanel job={selectedJob} onClose={() => setSelectedJob(null)} />}
+      detailPanel={<JobDetailPanel job={selectedJob} onClose={() => setSelectedJob(null)} onSelectJob={setSelectedJob} />}
       selectedJobId={selectedJob?.id}
     >
       {region.jobs.length === 0 ? (

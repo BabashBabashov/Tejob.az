@@ -25,7 +25,7 @@ export default function SektorClient({ sector, positions, sectors }: SektorClien
       jobs={sector.jobs}
       positions={positions}
       sectors={sectors}
-      detailPanel={<JobDetailPanel job={selectedJob} onClose={() => setSelectedJob(null)} />}
+      detailPanel={<JobDetailPanel job={selectedJob} onClose={() => setSelectedJob(null)} onSelectJob={setSelectedJob} />}
       selectedJobId={selectedJob?.id}
     >
       {sector.jobs.length === 0 ? (

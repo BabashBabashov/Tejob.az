@@ -104,7 +104,7 @@ export default function HomeClient({
       jobs={filteredJobs}
       positions={positions}
       sectors={sectors}
-      detailPanel={<JobDetailPanel job={selectedJob} onClose={() => setSelectedJob(null)} />}
+      detailPanel={<JobDetailPanel job={selectedJob} onClose={() => setSelectedJob(null)} onSelectJob={setSelectedJob} />}
       selectedJobId={selectedJob?.id}
       onSelectJob={setSelectedJob}
     >

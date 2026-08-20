@@ -34,7 +34,7 @@ export default function KateqoriyaClient({ category, positions, sectors }: Kateq
       jobs={filteredJobs}
       positions={positions}
       sectors={sectors}
-      detailPanel={<JobDetailPanel job={selectedJob} onClose={() => setSelectedJob(null)} />}
+      detailPanel={<JobDetailPanel job={selectedJob} onClose={() => setSelectedJob(null)} onSelectJob={setSelectedJob} />}
       selectedJobId={selectedJob?.id}
     >
       {filteredJobs.length === 0 ? (

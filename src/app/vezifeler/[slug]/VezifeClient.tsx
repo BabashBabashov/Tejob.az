@@ -25,7 +25,7 @@ export default function VezifeClient({ position, positions, sectors }: VezifeCli
       jobs={position.jobs}
       positions={positions}
       sectors={sectors}
-      detailPanel={<JobDetailPanel job={selectedJob} onClose={() => setSelectedJob(null)} />}
+      detailPanel={<JobDetailPanel job={selectedJob} onClose={() => setSelectedJob(null)} onSelectJob={setSelectedJob} />}
       selectedJobId={selectedJob?.id}
     >
       {position.jobs.length === 0 ? (
