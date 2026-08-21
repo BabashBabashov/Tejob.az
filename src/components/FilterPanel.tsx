@@ -120,28 +120,7 @@ export default function FilterPanel({
         </button>
       </div>
 
-      {/* Category tags (shown below if categories exist) */}
-      {categories.length > 0 && (
-        <div className="mt-3 flex flex-wrap gap-2 border-t border-slate-100 pt-3 dark:border-slate-800">
-          {categories.map((category) => (
-            <button
-              key={category.id}
-              onClick={() =>
-                onCategoryChange(
-                  categorySlug === category.slug ? "" : category.slug
-                )
-              }
-              className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
-                categorySlug === category.slug
-                  ? "border-emerald-500 bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400"
-                  : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
-              }`}
-            >
-              {category.name}
-            </button>
-          ))}
-        </div>
-      )}
+
     </div>
   );
 }
