@@ -1,8 +1,9 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 import JobCard from "./JobCard";
 import { Job } from "@/lib/types";
+import { X } from "lucide-react";
 
 interface ListingLayoutProps {
   title: string;
@@ -35,6 +36,20 @@ export default function ListingLayout({
     });
   }, [jobs]);
 
+  const [mobileDetailOpen, setMobileDetailOpen] = useState(false);
+
+  // When a job is selected on mobile, open the overlay
+  useEffect(() => {
+    if (selectedJobId) {
+      setMobileDetailOpen(true);
+    }
+  }, [selectedJobId]);
+
+  // Close mobile detail panel
+  const closeMobileDetail = () => {
+    setMobileDetailOpen(false);
+  };
+
   return (
     <div className="flex h-[calc(100vh-6rem)] gap-0">
       {/* Center list */}
@@ -64,7 +79,7 @@ export default function ListingLayout({
         )}
       </div>
 
-      {/* Right detail panel */}
+      {/* Desktop right detail panel */}
       <div className="hidden min-w-0 flex-1 overflow-y-auto border-l border-slate-200 px-5 py-4 dark:border-slate-800 md:block">
         {detailPanel || (
           <div className="rounded-xl border border-dashed border-slate-300 bg-white py-12 text-center dark:border-slate-700 dark:bg-slate-900">
@@ -72,6 +87,26 @@ export default function ListingLayout({
           </div>
         )}
       </div>
+
+      {/* Mobile full-screen detail overlay */}
+      {mobileDetailOpen && selectedJobId && (
+        <div className="fixed inset-0 z-50 flex flex-col bg-white dark:bg-slate-900 md:hidden">
+          {/* Mobile header with close button */}
+          <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3 dark:border-slate-700">
+            <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Elan detalları</h2>
+            <button
+              onClick={closeMobileDetail}
+              className="rounded-lg p-1.5 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"
+            >
+              <X size={20} />
+            </button>
+          </div>
+          {/* Mobile detail content */}
+          <div className="flex-1 overflow-y-auto p-4">
+            {detailPanel}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
