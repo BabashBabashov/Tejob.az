@@ -121,6 +121,7 @@ export default function HomeClient({
           regions={regions}
           companies={companies}
           categories={categories}
+          jobTitles={initialJobs.map((j) => j.title)}
         />
         <SocialBanner />
         {filteredJobs.length === 0 ? (

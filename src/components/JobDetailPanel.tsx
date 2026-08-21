@@ -14,6 +14,7 @@ import {
   Building2,
   Eye,
   ExternalLink,
+  Star,
 } from "lucide-react";
 import { Job } from "@/lib/types";
 import { formatDate } from "@/lib/utils";
@@ -30,6 +31,32 @@ export default function JobDetailPanel({ job, onClose, onSelectJob }: JobDetailP
   const [activeTab, setActiveTab] = useState<"description" | "other">("description");
   const [otherJobs, setOtherJobs] = useState<Job[]>([]);
   const [loadingOther, setLoadingOther] = useState(false);
+  const [bookmarked, setBookmarked] = useState(false);
+
+  // Bookmark helpers (same logic as JobCard)
+  const getBookmarks = (): string[] => {
+    if (typeof window === "undefined") return [];
+    try {
+      return JSON.parse(localStorage.getItem("bookmarkedJobs") || "[]");
+    } catch {
+      return [];
+    }
+  };
+
+  const toggleBookmark = () => {
+    if (!job) return;
+    const bookmarks = getBookmarks();
+    const index = bookmarks.indexOf(job.id);
+    let next: string[];
+    if (index > -1) {
+      next = bookmarks.filter((id) => id !== job.id);
+    } else {
+      next = [...bookmarks, job.id];
+    }
+    localStorage.setItem("bookmarkedJobs", JSON.stringify(next));
+    setBookmarked(index === -1);
+    window.dispatchEvent(new Event("bookmarksChanged"));
+  };
 
   // Increment view count when a job is selected (once per 12h per user)
   useEffect(() => {
@@ -44,6 +71,13 @@ export default function JobDetailPanel({ job, onClose, onSelectJob }: JobDetailP
   useEffect(() => {
     setActiveTab("description");
     setOtherJobs([]);
+  }, [job?.id]);
+
+  // Sync bookmark state when job changes
+  useEffect(() => {
+    if (job?.id) {
+      setBookmarked(getBookmarks().includes(job.id));
+    }
   }, [job?.id]);
 
   // Fetch other jobs when "other" tab is selected
@@ -88,12 +122,25 @@ export default function JobDetailPanel({ job, onClose, onSelectJob }: JobDetailP
           </div>
           <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">{company?.name}</span>
         </div>
-        <button
-          onClick={onClose}
-          className="rounded p-1 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"
-        >
-          <X size={18} />
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={toggleBookmark}
+            className={`rounded p-1 transition-colors ${
+              bookmarked
+                ? "text-emerald-600 hover:text-emerald-700 dark:text-emerald-400"
+                : "text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400"
+            }`}
+            aria-label="Seçilmiş elanlara əlavə et"
+          >
+            <Star size={18} fill={bookmarked ? "currentColor" : "none"} />
+          </button>
+          <button
+            onClick={onClose}
+            className="rounded p-1 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"
+          >
+            <X size={18} />
+          </button>
+        </div>
       </div>
 
       {/* Job title + metadata */}
