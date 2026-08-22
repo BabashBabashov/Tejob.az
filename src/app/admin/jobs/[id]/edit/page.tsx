@@ -34,6 +34,7 @@ export default async function EditJobPage({ params }: EditJobPageProps) {
   const formattedJob = {
     ...job,
     categoryIds: job.categories.map((c: { id: string }) => c.id),
+    positionName: job.position?.name || "",
     sectorName: job.sector?.name || "",
     salary: job.salary ?? "Razılaşma yolu ilə",
     workType: job.workType ?? "",

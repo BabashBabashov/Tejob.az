@@ -1,18 +1,19 @@
 import { prisma } from "./prisma";
 
 export async function getJobs(page = 1, limit = 20) {
-  const today = new Date().toISOString().split("T")[0];
+  const now = new Date();
   const skip = (page - 1) * limit;
+
+  const where = {
+    OR: [
+      { expiresAt: null },
+      { expiresAt: { gte: now } },
+    ],
+  };
 
   const [jobs, total] = await Promise.all([
     prisma.job.findMany({
-      where: {
-        OR: [
-          { deadline: null },
-          { deadline: "" },
-          { deadline: { gte: today } },
-        ],
-      },
+      where,
       include: {
         company: true,
         region: true,
@@ -24,21 +25,15 @@ export async function getJobs(page = 1, limit = 20) {
       skip,
       take: limit,
     }),
-    prisma.job.count({
-      where: {
-        OR: [
-          { deadline: null },
-          { deadline: "" },
-          { deadline: { gte: today } },
-        ],
-      },
-    }),
+    prisma.job.count({ where }),
   ]);
 
   return {
     jobs: jobs.map((job: any) => ({
       ...job,
       createdAt: job.createdAt.toISOString().split("T")[0],
+      // premium ExpiresAt-dən sonra premium=false kimi davranır
+      isPremium: job.isPremium && job.premiumExpiresAt && new Date(job.premiumExpiresAt) > now,
     })),
     total,
     page,
@@ -219,10 +214,17 @@ export async function getSectors() {
 }
 
 export async function getPositionBySlug(slug: string) {
+  const now = new Date();
   const position = await prisma.position.findUnique({
     where: { slug },
     include: {
       jobs: {
+        where: {
+          OR: [
+            { expiresAt: null },
+            { expiresAt: { gte: now } },
+          ],
+        },
         include: {
           company: true,
           region: true,
@@ -242,15 +244,23 @@ export async function getPositionBySlug(slug: string) {
     jobs: position.jobs.map((job: any) => ({
       ...job,
       createdAt: job.createdAt.toISOString().split("T")[0],
+      isPremium: job.isPremium && job.premiumExpiresAt && new Date(job.premiumExpiresAt) > now,
     })),
   };
 }
 
 export async function getSectorBySlug(slug: string) {
+  const now = new Date();
   const sector = await prisma.sector.findUnique({
     where: { slug },
     include: {
       jobs: {
+        where: {
+          OR: [
+            { expiresAt: null },
+            { expiresAt: { gte: now } },
+          ],
+        },
         include: {
           company: true,
           region: true,
@@ -270,6 +280,7 @@ export async function getSectorBySlug(slug: string) {
     jobs: sector.jobs.map((job: any) => ({
       ...job,
       createdAt: job.createdAt.toISOString().split("T")[0],
+      isPremium: job.isPremium && job.premiumExpiresAt && new Date(job.premiumExpiresAt) > now,
     })),
   };
 }

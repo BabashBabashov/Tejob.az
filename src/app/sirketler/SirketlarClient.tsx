@@ -55,10 +55,6 @@ export default function SirketlarClient({
         <CompanyDetailPanel
           company={selectedCompany}
           onClose={() => setSelectedCompany(null)}
-          onSelectJob={(job) => {
-            // When a job is selected from company detail, navigate to it
-            window.location.href = `/elanlar/${job.slug}`;
-          }}
         />
       }
       selectedJobId={selectedCompany?.id}

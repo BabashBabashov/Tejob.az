@@ -91,10 +91,9 @@ export default function FilterPanel({
 
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-3 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-      {/* Horizontal filter bar */}
-      <div className="flex items-center gap-2">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
         {/* Search input with autocomplete */}
-        <div className="relative flex-1" ref={wrapperRef}>
+        <div className="relative min-w-0 flex-1" ref={wrapperRef}>
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
           <input
             ref={inputRef}
@@ -134,14 +133,14 @@ export default function FilterPanel({
         </div>
 
         {/* Region dropdown */}
-        <div className="relative shrink-0">
+        <div className="relative w-full shrink sm:w-auto sm:shrink-0">
           <div className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
             <MapPin size={14} />
           </div>
           <select
             value={regionSlug}
             onChange={(e) => onRegionChange(e.target.value)}
-            className="appearance-none rounded-lg border border-slate-200 bg-slate-50 py-2.5 pl-9 pr-8 text-sm text-slate-700 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
+            className="w-full appearance-none rounded-lg border border-slate-200 bg-slate-50 py-2.5 pl-9 pr-8 text-sm text-slate-700 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 sm:w-auto"
           >
             <option value="">Rayonlar</option>
             {regions.map((region) => (
@@ -158,14 +157,14 @@ export default function FilterPanel({
         </div>
 
         {/* Company dropdown */}
-        <div className="relative shrink-0">
+        <div className="relative w-full shrink sm:w-auto sm:shrink-0">
           <div className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
             <Building2 size={14} />
           </div>
           <select
             value={companySlug}
             onChange={(e) => onCompanyChange(e.target.value)}
-            className="appearance-none rounded-lg border border-slate-200 bg-slate-50 py-2.5 pl-9 pr-8 text-sm text-slate-700 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
+            className="w-full appearance-none rounded-lg border border-slate-200 bg-slate-50 py-2.5 pl-9 pr-8 text-sm text-slate-700 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 sm:w-auto"
           >
             <option value="">Şirkətlər</option>
             {companies.map((company) => (

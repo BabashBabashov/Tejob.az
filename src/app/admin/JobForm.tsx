@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Save, X, Upload } from "lucide-react";
+import { Save, X } from "lucide-react";
 import type { Company, Region, Category, Job } from "@prisma/client";
 
 interface JobFormProps {
@@ -17,6 +17,7 @@ interface JobFormData {
   title: string;
   companyId: string;
   regionId: string;
+  positionName: string;
   sectorName: string;
   categoryIds: string[];
   description: string;
@@ -32,11 +33,6 @@ interface JobFormData {
   views: number;
 }
 
-interface CompanyData {
-  phone?: string | null;
-  email?: string | null;
-}
-
 export default function JobForm({
   job,
   companies,
@@ -50,6 +46,7 @@ export default function JobForm({
     title: job?.title || "",
     companyId: job?.companyId || companies[0]?.id || "",
     regionId: job?.regionId || regions[0]?.id || "",
+    positionName: job?.positionName || "",
     sectorName: job?.sectorName || "",
     categoryIds: job?.categoryIds || [],
     description: job?.description || "",
@@ -71,7 +68,7 @@ export default function JobForm({
   const [showPositionSuggestions, setShowPositionSuggestions] = useState(false);
   const [sectorSuggestions, setSectorSuggestions] = useState<string[]>([]);
   const [showSectorSuggestions, setShowSectorSuggestions] = useState(false);
-  const titleRef = useRef<HTMLInputElement>(null);
+  const positionRef = useRef<HTMLInputElement>(null);
   const sectorRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -85,20 +82,22 @@ export default function JobForm({
     }
   }, [formData.companyId, companies, isEditing]);
 
+  // Position autocomplete
   useEffect(() => {
-    if (formData.title.trim().length < 2) {
+    if (formData.positionName.trim().length < 2) {
       setPositionSuggestions([]);
       return;
     }
     const timer = setTimeout(() => {
-      fetch(`/api/positions?q=${encodeURIComponent(formData.title)}`)
+      fetch(`/api/positions?q=${encodeURIComponent(formData.positionName)}`)
         .then((res) => res.json())
         .then((data) => setPositionSuggestions(data.map((p: any) => p.name)))
         .catch(() => setPositionSuggestions([]));
     }, 200);
     return () => clearTimeout(timer);
-  }, [formData.title]);
+  }, [formData.positionName]);
 
+  // Sector autocomplete
   useEffect(() => {
     if (formData.sectorName.trim().length < 2) {
       setSectorSuggestions([]);
@@ -128,7 +127,12 @@ export default function JobForm({
     setError("");
 
     if (formData.title.trim().length < 3) {
-      setError("Vəzifə adı ən azı 3 simvol olmalıdır");
+      setError("Elanın adı ən azı 3 simvol olmalıdır");
+      return;
+    }
+
+    if (!formData.positionName.trim()) {
+      setError("Vəzifə adı daxil edilməlidir");
       return;
     }
 
@@ -213,20 +217,39 @@ export default function JobForm({
       )}
 
       <div className="grid gap-6 sm:grid-cols-2">
-        <div className="relative sm:col-span-2">
+        {/* Elanın adı */}
+        <div className="sm:col-span-2">
           <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
-            Vəzifə adı
+            Elanın adı
           </label>
           <input
-            ref={titleRef}
             type="text"
             required
             value={formData.title}
             onChange={(e) =>
               setFormData((prev) => ({ ...prev, title: e.target.value }))
             }
+            placeholder="məs: Mühasib - Bakı, təcrübəli"
+            className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+          />
+        </div>
+
+        {/* Vəzifə adı */}
+        <div className="relative">
+          <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
+            Vəzifə adı
+          </label>
+          <input
+            ref={positionRef}
+            type="text"
+            required
+            value={formData.positionName}
+            onChange={(e) =>
+              setFormData((prev) => ({ ...prev, positionName: e.target.value }))
+            }
             onFocus={() => setShowPositionSuggestions(true)}
             onBlur={() => setTimeout(() => setShowPositionSuggestions(false), 200)}
+            placeholder="məs: Mühasib, Sürücü, Satış təmsilçisi"
             className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
           />
           {showPositionSuggestions && positionSuggestions.length > 0 && (
@@ -235,7 +258,7 @@ export default function JobForm({
                 <li
                   key={name}
                   onMouseDown={() => {
-                    setFormData((prev) => ({ ...prev, title: name }));
+                    setFormData((prev) => ({ ...prev, positionName: name }));
                     setShowPositionSuggestions(false);
                   }}
                   className="cursor-pointer px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-700"
@@ -247,6 +270,7 @@ export default function JobForm({
           )}
         </div>
 
+        {/* Şirkət */}
         <div>
           <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
             Şirkət
@@ -267,6 +291,7 @@ export default function JobForm({
           </select>
         </div>
 
+        {/* Region */}
         <div>
           <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
             Region
@@ -286,8 +311,35 @@ export default function JobForm({
             ))}
           </select>
         </div>
+
+        {/* Kateqoriyalar */}
+        <div className="sm:col-span-2">
+          <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
+            Kateqoriyalar
+          </label>
+          <div className="flex flex-wrap gap-2">
+            {categories.map((category) => {
+              const selected = formData.categoryIds.includes(category.id);
+              return (
+                <button
+                  key={category.id}
+                  type="button"
+                  onClick={() => handleCategoryToggle(category.id)}
+                  className={`rounded-lg border px-3 py-1.5 text-sm transition-colors ${
+                    selected
+                      ? "border-emerald-500 bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400"
+                      : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
+                  }`}
+                >
+                  {category.name}
+                </button>
+              );
+            })}
+          </div>
+        </div>
       </div>
 
+      {/* Sektor */}
       <div className="relative">
         <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
           Sektor
@@ -323,31 +375,7 @@ export default function JobForm({
         )}
       </div>
 
-      <div className="space-y-4">
-        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
-          Kateqoriyalar
-        </label>
-        <div className="flex flex-wrap gap-2">
-          {categories.map((category) => {
-            const selected = formData.categoryIds.includes(category.id);
-            return (
-              <button
-                key={category.id}
-                type="button"
-                onClick={() => handleCategoryToggle(category.id)}
-                className={`rounded-lg border px-3 py-1.5 text-sm transition-colors ${
-                  selected
-                    ? "border-emerald-500 bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400"
-                    : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
-                }`}
-              >
-                {category.name}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
+      {/* İş haqqında */}
       <div>
         <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
           İş haqqında
@@ -451,7 +479,7 @@ export default function JobForm({
         </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2">
         <label className="flex items-center gap-2">
           <input
             type="checkbox"
@@ -466,40 +494,6 @@ export default function JobForm({
           />
           <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
             Premium elan
-          </span>
-        </label>
-
-        <label className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            checked={formData.isInternship}
-            onChange={(e) =>
-              setFormData((prev) => ({
-                ...prev,
-                isInternship: e.target.checked,
-              }))
-            }
-            className="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
-          />
-          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-            Təcrübə proqramı
-          </span>
-        </label>
-
-        <label className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            checked={formData.isWomenOnly}
-            onChange={(e) =>
-              setFormData((prev) => ({
-                ...prev,
-                isWomenOnly: e.target.checked,
-              }))
-            }
-            className="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
-          />
-          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-            Qadın işləri
           </span>
         </label>
 

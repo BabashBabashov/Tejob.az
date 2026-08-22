@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useState, useMemo, useEffect, useRef, useCallback } from "react";
+import { Loader2 } from "lucide-react";
 import JobCard from "@/components/JobCard";
 import JobDetailPanel from "@/components/JobDetailPanel";
 import ListingLayout from "@/components/ListingLayout";
@@ -30,12 +29,6 @@ interface Category {
   type: string;
 }
 
-interface Pagination {
-  page: number;
-  totalPages: number;
-  total: number;
-}
-
 interface HomeClientProps {
   initialJobs: Job[];
   companies: Company[];
@@ -43,7 +36,7 @@ interface HomeClientProps {
   categories: Category[];
   positions: { slug: string; name: string; jobCount?: number }[];
   sectors: { slug: string; name: string; jobCount?: number }[];
-  pagination: Pagination;
+  initialHasMore: boolean;
 }
 
 export default function HomeClient({
@@ -53,18 +46,21 @@ export default function HomeClient({
   categories,
   positions,
   sectors,
-  pagination,
+  initialHasMore,
 }: HomeClientProps) {
-  const router = useRouter();
-  const searchParams = useSearchParams();
   const [query, setQuery] = useState("");
   const [regionSlug, setRegionSlug] = useState("");
   const [companySlug, setCompanySlug] = useState("");
   const [categorySlug, setCategorySlug] = useState("");
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+  const [allJobs, setAllJobs] = useState<Job[]>(initialJobs);
+  const [hasMore, setHasMore] = useState(initialHasMore);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [page, setPage] = useState(1);
+  const observerRef = useRef<HTMLDivElement>(null);
 
   const filteredJobs = useMemo(() => {
-    return initialJobs
+    return allJobs
       .filter((job) => {
         const matchesQuery =
           query.trim() === "" ||
@@ -89,13 +85,57 @@ export default function HomeClient({
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
       });
-  }, [initialJobs, query, regionSlug, companySlug, categorySlug]);
+  }, [allJobs, query, regionSlug, companySlug, categorySlug]);
 
-  const goToPage = (page: number) => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("page", String(page));
-    router.push(`/?${params.toString()}`);
-  };
+  // Load more jobs
+  const loadMore = useCallback(async () => {
+    if (loadingMore || !hasMore) return;
+    setLoadingMore(true);
+    try {
+      const nextPage = page + 1;
+      const res = await fetch(`/api/jobs?page=${nextPage}&limit=20`);
+      const data = await res.json();
+      if (data.jobs && data.jobs.length > 0) {
+        setAllJobs((prev) => [...prev, ...data.jobs]);
+        setPage(nextPage);
+        setHasMore(data.hasMore);
+      } else {
+        setHasMore(false);
+      }
+    } catch {
+      // silently fail
+    } finally {
+      setLoadingMore(false);
+    }
+  }, [page, loadingMore, hasMore]);
+
+  // Intersection Observer for infinite scroll
+  useEffect(() => {
+    const el = observerRef.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !loadingMore) {
+          loadMore();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [loadMore, hasMore, loadingMore]);
+
+  // Reset jobs when filters change
+  useEffect(() => {
+    if (query || regionSlug || companySlug || categorySlug) {
+      // Don't load more when filtering
+      setHasMore(false);
+    } else {
+      setHasMore(initialHasMore);
+    }
+  }, [query, regionSlug, companySlug, categorySlug, initialHasMore]);
 
   return (
     <ListingLayout
@@ -121,7 +161,7 @@ export default function HomeClient({
           regions={regions}
           companies={companies}
           categories={categories}
-          jobTitles={initialJobs.map((j) => j.title)}
+          jobTitles={allJobs.map((j) => j.title)}
         />
         <SocialBanner />
         {filteredJobs.length === 0 ? (
@@ -140,30 +180,23 @@ export default function HomeClient({
                 isSelected={selectedJob?.id === job.id}
               />
             ))}
-          </div>
-        )}
 
-        {pagination.totalPages > 1 && (
-          <div className="flex items-center justify-center gap-2 pt-4">
-            <button
-              onClick={() => goToPage(pagination.page - 1)}
-              disabled={pagination.page <= 1}
-              className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
-            >
-              <ChevronLeft size={16} />
-              Əvvəlki
-            </button>
-            <span className="text-sm text-slate-500 dark:text-slate-400">
-              Səhifə {pagination.page} / {pagination.totalPages}
-            </span>
-            <button
-              onClick={() => goToPage(pagination.page + 1)}
-              disabled={pagination.page >= pagination.totalPages}
-              className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
-            >
-              Növbəti
-              <ChevronRight size={16} />
-            </button>
+            {/* Infinite scroll trigger */}
+            {!query && !regionSlug && !companySlug && !categorySlug && (
+              <div ref={observerRef} className="flex items-center justify-center py-6">
+                {loadingMore && (
+                  <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
+                    <Loader2 size={16} className="animate-spin" />
+                    Daha çox elan yüklənir...
+                  </div>
+                )}
+                {!hasMore && allJobs.length > 20 && (
+                  <p className="text-sm text-slate-400 dark:text-slate-500">
+                    Bütün elanlar yükləndi
+                  </p>
+                )}
+              </div>
+            )}
           </div>
         )}
       </div>

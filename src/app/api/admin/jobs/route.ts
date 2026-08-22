@@ -8,6 +8,7 @@ const jobSchema = z.object({
   title: z.string().min(3),
   companyId: z.string(),
   regionId: z.string(),
+  positionName: z.string().min(1),
   sectorName: z.string().min(1),
   categoryIds: z.array(z.string()).optional(),
   description: z.string().min(10),
@@ -87,9 +88,15 @@ export async function POST(request: NextRequest) {
     }
 
     const [position, sector] = await Promise.all([
-      findOrCreatePosition(validated.title),
+      findOrCreatePosition(validated.positionName),
       findOrCreateSector(validated.sectorName),
     ]);
+
+    const now = new Date();
+    const expiresAt = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000); // 30 gün
+    const premiumExpiresAt = validated.isPremium
+      ? new Date(now.getTime() + 24 * 60 * 60 * 1000) // 24 saat
+      : null;
 
     const job = await prisma.job.create({
       data: {
@@ -107,6 +114,8 @@ export async function POST(request: NextRequest) {
         isWomenOnly: validated.isWomenOnly,
         showViews: validated.showViews,
         views: validated.views,
+        expiresAt,
+        premiumExpiresAt,
         company: { connect: { id: validated.companyId } },
         region: { connect: { id: validated.regionId } },
         position: { connect: { id: position.id } },
@@ -134,7 +143,9 @@ export async function POST(request: NextRequest) {
         const path = issue.path.join(".");
         switch (path) {
           case "title":
-            return "Vəzifə adı ən azı 3 simvol olmalıdır";
+            return "Elanın adı ən azı 3 simvol olmalıdır";
+          case "positionName":
+            return "Vəzifə adı daxil edilməlidir";
           case "companyId":
             return "Şirkət seçilməlidir";
           case "regionId":

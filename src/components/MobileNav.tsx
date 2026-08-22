@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { X, Briefcase, Building2, MapPin, Info, Phone, Layers, Star, Heart, GraduationCap, Rss, Shield, Share2 } from "lucide-react";
+import { X, Building2, MapPin, Info, Phone, Layers, Star, Heart, GraduationCap, Rss, Shield, Share2 } from "lucide-react";
 import { socialLinks } from "@/lib/data";
 
 interface MobileNavProps {
@@ -13,7 +13,6 @@ interface MobileNavProps {
 }
 
 const mainNav = [
-  { href: "/", label: "Vakansiyalar", icon: Briefcase },
   { href: "/sirketler", label: "Şirkətlər", icon: Building2 },
   { href: "/rayonlar", label: "Region", icon: MapPin },
   { href: "/niye-biz", label: "Niyə Biz", icon: Info },
@@ -77,8 +76,15 @@ export default function MobileNav({ isOpen, onClose, positions = [], sectors = [
           </nav>
 
           <div className="border-t border-slate-200 pt-3 dark:border-slate-800">
-            <p className="mb-2 px-3 text-xs font-medium text-slate-400">Kateqoriyalar</p>
             <nav className="flex flex-col gap-1">
+              <Link href="/vezifeler" onClick={onClose} className={linkClass("/vezifeler")}>
+                <Layers size={18} />
+                Vəzifələr
+              </Link>
+              <Link href="/sektorlar" onClick={onClose} className={linkClass("/sektorlar")}>
+                <Layers size={18} />
+                Sektorlar
+              </Link>
               <Link href="/secilmis-elanlar" onClick={onClose} className={linkClass("/secilmis-elanlar")}>
                 <Star size={18} />
                 Seçilmiş elanlar
@@ -91,34 +97,6 @@ export default function MobileNav({ isOpen, onClose, positions = [], sectors = [
                 <GraduationCap size={18} />
                 Təcrübə Proqramları
               </Link>
-            </nav>
-          </div>
-
-          <div className="border-t border-slate-200 pt-3 dark:border-slate-800">
-            <p className="mb-2 px-3 text-xs font-medium text-slate-400">Sektorlar</p>
-            <nav className="flex flex-col gap-1">
-              {sectors.map((sector) => (
-                <Link key={sector.slug} href={`/sektorlar/${sector.slug}`} onClick={onClose} className={linkClass(`/sektorlar/${sector.slug}`)}>
-                  <span>{sector.name}</span>
-                  <span className="ml-auto rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600 dark:bg-slate-800 dark:text-slate-400">
-                    {sector.jobCount || 0}
-                  </span>
-                </Link>
-              ))}
-            </nav>
-          </div>
-
-          <div className="border-t border-slate-200 pt-3 dark:border-slate-800">
-            <p className="mb-2 px-3 text-xs font-medium text-slate-400">Vəzifələr</p>
-            <nav className="flex flex-col gap-1">
-              {positions.map((position) => (
-                <Link key={position.slug} href={`/vezifeler/${position.slug}`} onClick={onClose} className={linkClass(`/vezifeler/${position.slug}`)}>
-                  <span>{position.name}</span>
-                  <span className="ml-auto rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600 dark:bg-slate-800 dark:text-slate-400">
-                    {position.jobCount || 0}
-                  </span>
-                </Link>
-              ))}
             </nav>
           </div>
 

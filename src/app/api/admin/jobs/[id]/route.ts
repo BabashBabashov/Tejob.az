@@ -8,6 +8,7 @@ const jobUpdateSchema = z.object({
   title: z.string().min(3),
   companyId: z.string(),
   regionId: z.string(),
+  positionName: z.string().min(1),
   sectorName: z.string().min(1),
   categoryIds: z.array(z.string()).optional(),
   description: z.string().min(10),
@@ -104,7 +105,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     }
 
     const [position, sector] = await Promise.all([
-      findOrCreatePosition(validated.title),
+      findOrCreatePosition(validated.positionName),
       findOrCreateSector(validated.sectorName),
     ]);
 

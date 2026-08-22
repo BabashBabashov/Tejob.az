@@ -2,9 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
 import {
-  Briefcase,
   Layers,
   Star,
   Heart,
@@ -14,8 +12,6 @@ import {
   Users,
   BookOpen,
   Rss,
-  ChevronDown,
-  ChevronRight,
   Newspaper,
 } from "lucide-react";
 import { socialLinks } from "@/lib/data";
@@ -35,8 +31,8 @@ function getSocialIcon(name: string) {
       );
     case "WhatsApp":
       return (
-        <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
-          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" />
+        <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 32 32">
+          <path d="M16.004 0h-.008C7.174 0 0 7.176 0 16c0 3.5 1.132 6.744 3.054 9.374L1.054 31.25l6.118-1.97A15.906 15.906 0 0016.004 32C24.826 32 32 24.822 32 16S24.826 0 16.004 0zm9.374 22.608c-.39 1.1-1.932 2.014-3.168 2.28-.84.18-1.934.322-5.626-1.208-4.726-1.956-7.762-6.76-8-7.074-.23-.314-1.896-2.524-1.896-4.814 0-2.29 1.2-3.418 1.628-3.88.39-.428.926-.548 1.232-.548.15 0 .282.008.402.014.4.016.602.04.864.66.33.778 1.136 2.76 1.236 2.96.1.2.166.434.034.7-.13.27-.244.436-.444.674-.2.236-.42.526-.6.71-.18.186-.37.386-.156.758.212.37.944 1.556 2.026 2.52 1.39 1.236 2.56 1.618 2.93 1.798.37.18.584.15.8-.09.25-.274 1.062-1.236 1.346-1.668.284-.432.57-.36.96-.216s2.486 1.176 2.91 1.39c.424.214.708.32.814.498.106.178.106 1.03-.284 2.128z"/>
         </svg>
       );
     case "LinkedIn":
@@ -70,8 +66,6 @@ function getSocialIcon(name: string) {
 
 export default function Sidebar({ positions = [], sectors = [] }: SidebarProps) {
   const pathname = usePathname();
-  const [openPositions, setOpenPositions] = useState(false);
-  const [openSectors, setOpenSectors] = useState(false);
 
   const linkClass = (href: string) =>
     `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
@@ -80,21 +74,10 @@ export default function Sidebar({ positions = [], sectors = [] }: SidebarProps) 
         : "text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
     }`;
 
-  const itemLinkClass = (href: string) =>
-    `flex items-center justify-between rounded-lg px-3 py-2 text-sm transition-colors ${
-      pathname === href
-        ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400"
-        : "text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
-    }`;
-
   return (
     <aside className="sticky top-16 hidden h-[calc(100vh-4rem)] w-52 shrink-0 flex-col gap-2 overflow-y-auto border-r border-slate-200 bg-white px-2 py-4 lg:flex dark:border-slate-800 dark:bg-[#0f172a]">
       {/* Main navigation */}
       <nav className="flex flex-col gap-0.5">
-        <Link href="/" className={linkClass("/")}>
-          <Briefcase size={18} />
-          Vakansiyalar
-        </Link>
         <Link href="/secilmis-elanlar" className={linkClass("/secilmis-elanlar")}>
           <Star size={18} />
           Seçilmiş elanlar
@@ -111,62 +94,18 @@ export default function Sidebar({ positions = [], sectors = [] }: SidebarProps) 
 
       {/* Vəzifələr */}
       <div className="mt-2 border-t border-slate-100 pt-2 dark:border-slate-800">
-        <button
-          onClick={() => setOpenPositions((prev) => !prev)}
-          className="flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
-        >
-          <span className="flex items-center gap-3">
-            <Layers size={18} />
-            Vəzifələr
-          </span>
-          {openPositions ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
-        </button>
-        {openPositions && (
-          <div className="mt-1 flex max-h-60 flex-col gap-0.5 overflow-y-auto pl-4">
-            {positions.map((position) => (
-              <Link
-                key={position.slug}
-                href={`/vezifeler/${position.slug}`}
-                className={itemLinkClass(`/vezifeler/${position.slug}`)}
-              >
-                <span>{position.name}</span>
-                <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600 dark:bg-slate-800 dark:text-slate-400">
-                  {position.jobCount || 0}
-                </span>
-              </Link>
-            ))}
-          </div>
-        )}
+        <Link href="/vezifeler" className={linkClass("/vezifeler")}>
+          <Layers size={18} />
+          Vəzifələr
+        </Link>
       </div>
 
       {/* Sektorlar */}
       <div className="border-t border-slate-100 pt-2 dark:border-slate-800">
-        <button
-          onClick={() => setOpenSectors((prev) => !prev)}
-          className="flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
-        >
-          <span className="flex items-center gap-3">
-            <Newspaper size={18} />
-            Sektorlar
-          </span>
-          {openSectors ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
-        </button>
-        {openSectors && (
-          <div className="mt-1 flex max-h-60 flex-col gap-0.5 overflow-y-auto pl-4">
-            {sectors.map((sector) => (
-              <Link
-                key={sector.slug}
-                href={`/sektorlar/${sector.slug}`}
-                className={itemLinkClass(`/sektorlar/${sector.slug}`)}
-              >
-                <span>{sector.name}</span>
-                <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600 dark:bg-slate-800 dark:text-slate-400">
-                  {sector.jobCount || 0}
-                </span>
-              </Link>
-            ))}
-          </div>
-        )}
+        <Link href="/sektorlar" className={linkClass("/sektorlar")}>
+          <Newspaper size={18} />
+          Sektorlar
+        </Link>
       </div>
 
       {/* Links */}

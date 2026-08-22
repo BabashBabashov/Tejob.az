@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useState, useEffect } from "react";
 import { MapPin, Calendar, Crown, Star, Eye } from "lucide-react";
 import { Job } from "@/lib/types";
@@ -138,5 +137,5 @@ export default function JobCard({
     );
   }
 
-  return <Link href={`/elanlar/${job.slug}`}>{content}</Link>;
+  return <div>{content}</div>;
 }

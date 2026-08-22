@@ -36,21 +36,23 @@ model Category {
 }
 
 model Job {
-  id           String     @id
-  slug         String     @unique
-  title        String
-  description  String
-  salary       String?
-  workType     String?
-  deadline     String?
-  contactPhone String?
-  contactEmail String?
-  isPremium    Boolean    @default(false)
-  isInternship Boolean    @default(false)
-  isWomenOnly  Boolean    @default(false)
-  showViews    Boolean    @default(true)
-  views        Int        @default(0)
-  createdAt    DateTime   @default(now())
+  id               String     @id
+  slug             String     @unique
+  title            String
+  description      String
+  salary           String?
+  workType         String?
+  deadline         String?
+  contactPhone     String?
+  contactEmail     String?
+  isPremium        Boolean    @default(false)
+  isInternship     Boolean    @default(false)
+  isWomenOnly      Boolean    @default(false)
+  showViews        Boolean    @default(true)
+  views            Int        @default(0)
+  createdAt        DateTime   @default(now())
+  expiresAt        DateTime?  // elanın bitmə tarixi (30 gün)
+  premiumExpiresAt DateTime?  // premium bitmə tarixi (24 saat)
 
   companyId    String
   company      Company    @relation(fields: [companyId], references: [id])
@@ -68,6 +70,7 @@ model Job {
   @@index([createdAt])
   @@index([positionId])
   @@index([sectorId])
+  @@index([expiresAt])
 }
 
 model Position {
