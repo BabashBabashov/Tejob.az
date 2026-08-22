@@ -515,26 +515,6 @@ export default function JobForm({
         </label>
       </div>
 
-      {isEditing && (
-        <div>
-          <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
-            Baxış sayı
-          </label>
-          <input
-            type="number"
-            min={0}
-            value={formData.views}
-            onChange={(e) =>
-              setFormData((prev) => ({
-                ...prev,
-                views: parseInt(e.target.value || "0", 10),
-              }))
-            }
-            className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
-          />
-        </div>
-      )}
-
       <div className="flex items-center justify-end gap-3 pt-4">
         <button
           type="button"

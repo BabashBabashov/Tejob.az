@@ -2,8 +2,12 @@ import { compare, hash } from "bcryptjs";
 import { sign, verify } from "jsonwebtoken";
 import { cookies } from "next/headers";
 import { prisma } from "./prisma";
+import { UnauthorizedError } from "./errors";
 
-const JWT_SECRET = process.env.JWT_SECRET || "tejob-secret";
+if (!process.env.JWT_SECRET) {
+  throw new Error("JWT_SECRET environment variable is required");
+}
+const JWT_SECRET = process.env.JWT_SECRET;
 const COOKIE_NAME = "tejob-admin-token";
 
 export interface AdminTokenPayload {
@@ -20,7 +24,7 @@ export async function verifyPassword(password: string, hashed: string) {
 }
 
 export function signToken(payload: AdminTokenPayload) {
-  return sign(payload, JWT_SECRET, { expiresIn: "7d" });
+  return sign(payload, JWT_SECRET, { expiresIn: "24h" });
 }
 
 export function verifyToken(token: string): AdminTokenPayload {
@@ -32,8 +36,8 @@ export async function setAuthCookie(token: string) {
   cookieStore.set(COOKIE_NAME, token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    maxAge: 60 * 60 * 24 * 7,
+    sameSite: "strict",
+    maxAge: 60 * 60 * 24,
     path: "/",
   });
 }
@@ -62,7 +66,7 @@ export async function getAuthAdmin() {
 export async function requireAuth() {
   const admin = await getAuthAdmin();
   if (!admin) {
-    throw new Error("Unauthorized");
+    throw new UnauthorizedError();
   }
   return admin;
 }

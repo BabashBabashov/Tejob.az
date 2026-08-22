@@ -3,11 +3,12 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth";
 import { slugify } from "@/lib/slugify";
+import { handleAuthError } from "@/lib/route-helpers";
 
 const companySchema = z.object({
   name: z.string().min(2),
   sector: z.string().min(2),
-  description: z.string().min(10),
+  description: z.string().min(10).max(2000),
   logo: z.string().default("/logo.png"),
   banner: z.string().optional().or(z.literal("")),
   email: z.string().email().optional().or(z.literal("")),
@@ -45,9 +46,8 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(company, { status: 201 });
   } catch (error) {
-    if (error instanceof Error && error.message === "Unauthorized") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const authError = handleAuthError(error);
+    if (authError) return authError;
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: "Validasiya xətası", details: error.issues },
@@ -56,10 +56,7 @@ export async function POST(request: NextRequest) {
     }
     console.error(error);
     return NextResponse.json(
-      {
-        error: "Şirkət əlavə edilərkən xəta baş verdi",
-        message: error instanceof Error ? error.message : "Unknown error",
-      },
+      { error: "Şirkət əlavə edilərkən xəta baş verdi" },
       { status: 500 }
     );
   }

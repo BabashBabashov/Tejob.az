@@ -18,6 +18,7 @@ import {
 import { Job } from "@/lib/types";
 import { formatDate } from "@/lib/utils";
 import { hasViewedRecently, markViewed } from "@/lib/viewCounter";
+import { isBookmarked, toggleBookmark } from "@/lib/bookmarks";
 import CompanyLogo from "./CompanyLogo";
 
 interface JobDetailPanelProps {
@@ -32,29 +33,10 @@ export default function JobDetailPanel({ job, onClose, onSelectJob }: JobDetailP
   const [loadingOther, setLoadingOther] = useState(false);
   const [bookmarked, setBookmarked] = useState(false);
 
-  // Bookmark helpers (same logic as JobCard)
-  const getBookmarks = (): string[] => {
-    if (typeof window === "undefined") return [];
-    try {
-      return JSON.parse(localStorage.getItem("bookmarkedJobs") || "[]");
-    } catch {
-      return [];
-    }
-  };
-
-  const toggleBookmark = () => {
+  const handleToggleBookmark = () => {
     if (!job) return;
-    const bookmarks = getBookmarks();
-    const index = bookmarks.indexOf(job.id);
-    let next: string[];
-    if (index > -1) {
-      next = bookmarks.filter((id) => id !== job.id);
-    } else {
-      next = [...bookmarks, job.id];
-    }
-    localStorage.setItem("bookmarkedJobs", JSON.stringify(next));
-    setBookmarked(index === -1);
-    window.dispatchEvent(new Event("bookmarksChanged"));
+    const added = toggleBookmark(job.id);
+    setBookmarked(added);
   };
 
   // Increment view count when a job is selected (once per 12h per user)
@@ -75,7 +57,7 @@ export default function JobDetailPanel({ job, onClose, onSelectJob }: JobDetailP
   // Sync bookmark state when job changes
   useEffect(() => {
     if (job?.id) {
-      setBookmarked(getBookmarks().includes(job.id));
+      setBookmarked(isBookmarked(job.id));
     }
   }, [job?.id]);
 
@@ -122,8 +104,8 @@ export default function JobDetailPanel({ job, onClose, onSelectJob }: JobDetailP
           <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">{company?.name}</span>
         </div>
         <div className="flex items-center gap-2">
-          <button
-            onClick={toggleBookmark}
+            <button
+              onClick={handleToggleBookmark}
             className={`rounded p-1 transition-colors ${
               bookmarked
                 ? "text-emerald-600 hover:text-emerald-700 dark:text-emerald-400"

@@ -3,11 +3,12 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth";
 import { slugify } from "@/lib/slugify";
+import { handleAuthError } from "@/lib/route-helpers";
 
 const companyUpdateSchema = z.object({
   name: z.string().min(2),
   sector: z.string().min(2),
-  description: z.string().min(10),
+  description: z.string().min(10).max(2000),
   logo: z.string().default("/logo.png"),
   banner: z.string().optional().or(z.literal("")),
   email: z.string().email().optional().or(z.literal("")),
@@ -38,9 +39,8 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json(company);
   } catch (error) {
-    if (error instanceof Error && error.message === "Unauthorized") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const authError = handleAuthError(error);
+    if (authError) return authError;
     console.error(error);
     return NextResponse.json({ error: "Xəta baş verdi" }, { status: 500 });
   }
@@ -89,9 +89,8 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json(company);
   } catch (error) {
-    if (error instanceof Error && error.message === "Unauthorized") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const authError = handleAuthError(error);
+    if (authError) return authError;
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: "Validasiya xətası", details: error.issues },
@@ -119,9 +118,8 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     await prisma.company.delete({ where: { id } });
     return NextResponse.json({ success: true });
   } catch (error) {
-    if (error instanceof Error && error.message === "Unauthorized") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const authError = handleAuthError(error);
+    if (authError) return authError;
     console.error(error);
     return NextResponse.json(
       { error: "Şirkət silinərkən xəta baş verdi" },

@@ -1,15 +1,26 @@
 import { prisma } from "./prisma";
 
-export async function getJobs(page = 1, limit = 20) {
-  const now = new Date();
-  const skip = (page - 1) * limit;
+const now = () => new Date();
 
-  const where = {
-    OR: [
-      { expiresAt: null },
-      { expiresAt: { gte: now } },
-    ],
+function expiresFilter() {
+  return { OR: [{ expiresAt: null }, { expiresAt: { gte: now() } }] };
+}
+
+function computePremium(job: any) {
+  return !!(job.isPremium && job.premiumExpiresAt && new Date(job.premiumExpiresAt) > now());
+}
+
+function mapJob(job: any) {
+  return {
+    ...job,
+    createdAt: job.createdAt.toISOString(),
+    isPremium: computePremium(job),
   };
+}
+
+export async function getJobs(page = 1, limit = 20) {
+  const skip = (page - 1) * limit;
+  const where = expiresFilter();
 
   const [jobs, total] = await Promise.all([
     prisma.job.findMany({
@@ -29,12 +40,7 @@ export async function getJobs(page = 1, limit = 20) {
   ]);
 
   return {
-    jobs: jobs.map((job: any) => ({
-      ...job,
-      createdAt: job.createdAt.toISOString().split("T")[0],
-      // premium ExpiresAt-dən sonra premium=false kimi davranır
-      isPremium: job.isPremium && job.premiumExpiresAt && new Date(job.premiumExpiresAt) > now,
-    })),
+    jobs: jobs.map(mapJob),
     total,
     page,
     totalPages: Math.ceil(total / limit),
@@ -54,11 +60,7 @@ export async function getJobBySlug(slug: string) {
   });
 
   if (!job) return null;
-
-  return {
-    ...job,
-    createdAt: job.createdAt.toISOString().split("T")[0],
-  };
+  return mapJob(job);
 }
 
 export async function getCompanies() {
@@ -66,7 +68,9 @@ export async function getCompanies() {
     orderBy: { name: "asc" },
     include: {
       _count: {
-        select: { jobs: true },
+        select: {
+          jobs: { where: expiresFilter() },
+        },
       },
     },
   });
@@ -82,6 +86,7 @@ export async function getCompanyBySlug(slug: string) {
     where: { slug },
     include: {
       jobs: {
+        where: expiresFilter(),
         include: {
           region: true,
           position: true,
@@ -97,10 +102,7 @@ export async function getCompanyBySlug(slug: string) {
 
   return {
     ...company,
-    jobs: company.jobs.map((job: any) => ({
-      ...job,
-      createdAt: job.createdAt.toISOString().split("T")[0],
-    })),
+    jobs: company.jobs.map(mapJob),
   };
 }
 
@@ -109,7 +111,9 @@ export async function getRegions() {
     orderBy: { name: "asc" },
     include: {
       _count: {
-        select: { jobs: true },
+        select: {
+          jobs: { where: expiresFilter() },
+        },
       },
     },
   });
@@ -125,6 +129,7 @@ export async function getRegionBySlug(slug: string) {
     where: { slug },
     include: {
       jobs: {
+        where: expiresFilter(),
         include: {
           company: true,
           position: true,
@@ -140,10 +145,7 @@ export async function getRegionBySlug(slug: string) {
 
   return {
     ...region,
-    jobs: region.jobs.map((job: any) => ({
-      ...job,
-      createdAt: job.createdAt.toISOString().split("T")[0],
-    })),
+    jobs: region.jobs.map(mapJob),
   };
 }
 
@@ -158,6 +160,7 @@ export async function getCategoryBySlug(slug: string) {
     where: { slug },
     include: {
       jobs: {
+        where: expiresFilter(),
         include: {
           company: true,
           region: true,
@@ -174,10 +177,7 @@ export async function getCategoryBySlug(slug: string) {
 
   return {
     ...category,
-    jobs: category.jobs.map((job: any) => ({
-      ...job,
-      createdAt: job.createdAt.toISOString().split("T")[0],
-    })),
+    jobs: category.jobs.map(mapJob),
   };
 }
 
@@ -186,7 +186,9 @@ export async function getPositions() {
     orderBy: { name: "asc" },
     include: {
       _count: {
-        select: { jobs: true },
+        select: {
+          jobs: { where: expiresFilter() },
+        },
       },
     },
   });
@@ -202,7 +204,9 @@ export async function getSectors() {
     orderBy: { name: "asc" },
     include: {
       _count: {
-        select: { jobs: true },
+        select: {
+          jobs: { where: expiresFilter() },
+        },
       },
     },
   });
@@ -214,17 +218,11 @@ export async function getSectors() {
 }
 
 export async function getPositionBySlug(slug: string) {
-  const now = new Date();
   const position = await prisma.position.findUnique({
     where: { slug },
     include: {
       jobs: {
-        where: {
-          OR: [
-            { expiresAt: null },
-            { expiresAt: { gte: now } },
-          ],
-        },
+        where: expiresFilter(),
         include: {
           company: true,
           region: true,
@@ -241,26 +239,16 @@ export async function getPositionBySlug(slug: string) {
 
   return {
     ...position,
-    jobs: position.jobs.map((job: any) => ({
-      ...job,
-      createdAt: job.createdAt.toISOString().split("T")[0],
-      isPremium: job.isPremium && job.premiumExpiresAt && new Date(job.premiumExpiresAt) > now,
-    })),
+    jobs: position.jobs.map(mapJob),
   };
 }
 
 export async function getSectorBySlug(slug: string) {
-  const now = new Date();
   const sector = await prisma.sector.findUnique({
     where: { slug },
     include: {
       jobs: {
-        where: {
-          OR: [
-            { expiresAt: null },
-            { expiresAt: { gte: now } },
-          ],
-        },
+        where: expiresFilter(),
         include: {
           company: true,
           region: true,
@@ -277,15 +265,6 @@ export async function getSectorBySlug(slug: string) {
 
   return {
     ...sector,
-    jobs: sector.jobs.map((job: any) => ({
-      ...job,
-      createdAt: job.createdAt.toISOString().split("T")[0],
-      isPremium: job.isPremium && job.premiumExpiresAt && new Date(job.premiumExpiresAt) > now,
-    })),
+    jobs: sector.jobs.map(mapJob),
   };
-}
-
-export function formatDate(dateString: string): string {
-  const [year, month, day] = dateString.split("-");
-  return `${day}.${month}.${year}`;
 }

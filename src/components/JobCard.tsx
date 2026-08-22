@@ -4,29 +4,8 @@ import { useState, useEffect } from "react";
 import { MapPin, Calendar, Crown, Star, Eye } from "lucide-react";
 import { Job } from "@/lib/types";
 import { formatDate } from "@/lib/utils";
+import { isBookmarked, toggleBookmark } from "@/lib/bookmarks";
 import CompanyLogo from "./CompanyLogo";
-
-function getBookmarks(): string[] {
-  if (typeof window === "undefined") return [];
-  try {
-    return JSON.parse(localStorage.getItem("bookmarkedJobs") || "[]");
-  } catch {
-    return [];
-  }
-}
-
-function toggleBookmark(jobId: string): boolean {
-  const bookmarks = getBookmarks();
-  const index = bookmarks.indexOf(jobId);
-  let next: string[];
-  if (index > -1) {
-    next = bookmarks.filter((id) => id !== jobId);
-  } else {
-    next = [...bookmarks, jobId];
-  }
-  localStorage.setItem("bookmarkedJobs", JSON.stringify(next));
-  return index === -1; // true if added, false if removed
-}
 
 interface JobCardProps {
   job: Job;
@@ -46,15 +25,13 @@ export default function JobCard({
   const [bookmarked, setBookmarked] = useState(false);
 
   useEffect(() => {
-    setBookmarked(getBookmarks().includes(job.id));
+    setBookmarked(isBookmarked(job.id));
   }, [job.id]);
 
   const handleBookmark = (e: React.MouseEvent) => {
     e.stopPropagation();
     const added = toggleBookmark(job.id);
     setBookmarked(added);
-    // Dispatch custom event so other components can react
-    window.dispatchEvent(new Event("bookmarksChanged"));
   };
 
   const content = (

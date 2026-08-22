@@ -56,8 +56,18 @@ export default function HomeClient({
   const [allJobs, setAllJobs] = useState<Job[]>(initialJobs);
   const [hasMore, setHasMore] = useState(initialHasMore);
   const [loadingMore, setLoadingMore] = useState(false);
-  const [page, setPage] = useState(1);
+  const pageRef = useRef(1);
+  const loadingRef = useRef(false);
   const observerRef = useRef<HTMLDivElement>(null);
+
+  // Memoized detail panel
+  const detailPanel = useMemo(
+    () => <JobDetailPanel job={selectedJob} onClose={() => setSelectedJob(null)} onSelectJob={setSelectedJob} />,
+    [selectedJob]
+  );
+
+  // Memoized job titles for filter
+  const jobTitles = useMemo(() => allJobs.map((j) => j.title), [allJobs]);
 
   const filteredJobs = useMemo(() => {
     return allJobs
@@ -89,15 +99,17 @@ export default function HomeClient({
 
   // Load more jobs
   const loadMore = useCallback(async () => {
-    if (loadingMore || !hasMore) return;
+    if (loadingRef.current || !hasMore) return;
+    loadingRef.current = true;
     setLoadingMore(true);
     try {
-      const nextPage = page + 1;
+      const nextPage = pageRef.current + 1;
       const res = await fetch(`/api/jobs?page=${nextPage}&limit=20`);
+      if (!res.ok) return;
       const data = await res.json();
       if (data.jobs && data.jobs.length > 0) {
         setAllJobs((prev) => [...prev, ...data.jobs]);
-        setPage(nextPage);
+        pageRef.current = nextPage;
         setHasMore(data.hasMore);
       } else {
         setHasMore(false);
@@ -105,9 +117,10 @@ export default function HomeClient({
     } catch {
       // silently fail
     } finally {
+      loadingRef.current = false;
       setLoadingMore(false);
     }
-  }, [page, loadingMore, hasMore]);
+  }, [hasMore]);
 
   // Intersection Observer for infinite scroll
   useEffect(() => {
@@ -116,7 +129,7 @@ export default function HomeClient({
 
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && hasMore && !loadingMore) {
+        if (entries[0].isIntersecting && hasMore && !loadingRef.current) {
           loadMore();
         }
       },
@@ -125,17 +138,24 @@ export default function HomeClient({
 
     observer.observe(el);
     return () => observer.disconnect();
-  }, [loadMore, hasMore, loadingMore]);
+  }, [loadMore, hasMore]);
 
-  // Reset jobs when filters change
+  // Reset when filters change
+  const hasActiveFilters = query || regionSlug || companySlug || categorySlug;
+  const prevFiltersRef = useRef(hasActiveFilters);
+
   useEffect(() => {
-    if (query || regionSlug || companySlug || categorySlug) {
-      // Don't load more when filtering
-      setHasMore(false);
-    } else {
-      setHasMore(initialHasMore);
+    if (prevFiltersRef.current !== hasActiveFilters) {
+      prevFiltersRef.current = hasActiveFilters;
+      if (hasActiveFilters) {
+        setHasMore(false);
+      } else {
+        setAllJobs(initialJobs);
+        pageRef.current = 1;
+        setHasMore(initialHasMore);
+      }
     }
-  }, [query, regionSlug, companySlug, categorySlug, initialHasMore]);
+  }, [hasActiveFilters, initialJobs, initialHasMore]);
 
   return (
     <ListingLayout
@@ -144,7 +164,7 @@ export default function HomeClient({
       jobs={filteredJobs}
       positions={positions}
       sectors={sectors}
-      detailPanel={<JobDetailPanel job={selectedJob} onClose={() => setSelectedJob(null)} onSelectJob={setSelectedJob} />}
+      detailPanel={detailPanel}
       selectedJobId={selectedJob?.id}
       onSelectJob={setSelectedJob}
     >
@@ -161,7 +181,7 @@ export default function HomeClient({
           regions={regions}
           companies={companies}
           categories={categories}
-          jobTitles={allJobs.map((j) => j.title)}
+          jobTitles={jobTitles}
         />
         <SocialBanner />
         {filteredJobs.length === 0 ? (
@@ -182,7 +202,7 @@ export default function HomeClient({
             ))}
 
             {/* Infinite scroll trigger */}
-            {!query && !regionSlug && !companySlug && !categorySlug && (
+            {!hasActiveFilters && (
               <div ref={observerRef} className="flex items-center justify-center py-6">
                 {loadingMore && (
                   <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">

@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth";
 import { slugify } from "@/lib/slugify";
+import { handleAuthError } from "@/lib/route-helpers";
 
 const jobSchema = z.object({
   title: z.string().min(3),
@@ -11,7 +12,7 @@ const jobSchema = z.object({
   positionName: z.string().min(1),
   sectorName: z.string().min(1),
   categoryIds: z.array(z.string()).optional(),
-  description: z.string().min(10),
+  description: z.string().min(10).max(5000),
   salary: z.string().optional(),
   workType: z.string().optional(),
   deadline: z.string().optional(),
@@ -21,7 +22,6 @@ const jobSchema = z.object({
   isInternship: z.boolean().default(false),
   isWomenOnly: z.boolean().default(false),
   showViews: z.boolean().default(true),
-  views: z.number().int().default(0),
 });
 
 function formatJob(job: any) {
@@ -64,9 +64,8 @@ export async function GET() {
     });
     return NextResponse.json(jobs.map(formatJob));
   } catch (error) {
-    if (error instanceof Error && error.message === "Unauthorized") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const authError = handleAuthError(error);
+    if (authError) return authError;
     console.error(error);
     return NextResponse.json({ error: "Xəta baş verdi" }, { status: 500 });
   }
@@ -113,7 +112,7 @@ export async function POST(request: NextRequest) {
         isInternship: validated.isInternship,
         isWomenOnly: validated.isWomenOnly,
         showViews: validated.showViews,
-        views: validated.views,
+        views: 0,
         expiresAt,
         premiumExpiresAt,
         company: { connect: { id: validated.companyId } },
@@ -135,9 +134,8 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(formatJob(job), { status: 201 });
   } catch (error) {
-    if (error instanceof Error && error.message === "Unauthorized") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const authError = handleAuthError(error);
+    if (authError) return authError;
     if (error instanceof z.ZodError) {
       const messages = error.issues.map((issue) => {
         const path = issue.path.join(".");
@@ -156,8 +154,6 @@ export async function POST(request: NextRequest) {
             return "İş haqqında məlumat ən azı 10 simvol olmalıdır";
           case "contactEmail":
             return "Düzgün e-poçt ünvanı daxil edin";
-          case "views":
-            return "Baxış sayı düzgün formatda deyil";
           default:
             return issue.message;
         }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth";
+import { handleAuthError } from "@/lib/route-helpers";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -23,9 +24,8 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json({ showViews: updated.showViews, views: updated.views });
   } catch (error) {
-    if (error instanceof Error && error.message === "Unauthorized") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const authError = handleAuthError(error);
+    if (authError) return authError;
     console.error(error);
     return NextResponse.json(
       { error: "Baxış sayı dəyişilərkən xəta baş verdi" },

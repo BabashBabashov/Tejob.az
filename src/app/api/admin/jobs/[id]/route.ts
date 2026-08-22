@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth";
 import { slugify } from "@/lib/slugify";
+import { handleAuthError } from "@/lib/route-helpers";
 
 const jobUpdateSchema = z.object({
   title: z.string().min(3),
@@ -11,7 +12,7 @@ const jobUpdateSchema = z.object({
   positionName: z.string().min(1),
   sectorName: z.string().min(1),
   categoryIds: z.array(z.string()).optional(),
-  description: z.string().min(10),
+  description: z.string().min(10).max(5000),
   salary: z.string().optional(),
   workType: z.string().optional(),
   deadline: z.string().optional(),
@@ -21,7 +22,6 @@ const jobUpdateSchema = z.object({
   isInternship: z.boolean().default(false),
   isWomenOnly: z.boolean().default(false),
   showViews: z.boolean().default(true),
-  views: z.number().int().optional(),
 });
 
 function formatJob(job: any) {
@@ -69,9 +69,8 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json(formatJob(job));
   } catch (error) {
-    if (error instanceof Error && error.message === "Unauthorized") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const authError = handleAuthError(error);
+    if (authError) return authError;
     console.error(error);
     return NextResponse.json({ error: "Xəta baş verdi" }, { status: 500 });
   }
@@ -131,10 +130,6 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       },
     };
 
-    if (typeof validated.views === "number") {
-      updateData.views = validated.views;
-    }
-
     const job = await prisma.job.update({
       where: { id },
       data: updateData,
@@ -149,9 +144,8 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json(formatJob(job));
   } catch (error) {
-    if (error instanceof Error && error.message === "Unauthorized") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const authError = handleAuthError(error);
+    if (authError) return authError;
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: "Validasiya xətası", details: error.issues },
@@ -174,9 +168,8 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     await prisma.job.delete({ where: { id } });
     return NextResponse.json({ success: true });
   } catch (error) {
-    if (error instanceof Error && error.message === "Unauthorized") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const authError = handleAuthError(error);
+    if (authError) return authError;
     console.error(error);
     return NextResponse.json(
       { error: "Elan silinərkən xəta baş verdi" },
